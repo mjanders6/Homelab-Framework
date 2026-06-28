@@ -5,6 +5,8 @@
 SHELL := /bin/bash
 
 SCRIPT_DIR := ./scripts
+MODULE_ACTIONS := install configure verify status remove backup restore update upgrade report
+MODULES := $(shell bash $(SCRIPT_DIR)/lib/modules.sh list_modules)
 
 ##############################################################################
 # Help
@@ -18,6 +20,35 @@ help: ## Show this help message
 	/^[a-zA-Z_-]+:.*?## / { \
 	printf "  %-25s %s\n", $$1, $$2 \
 	}' $(MAKEFILE_LIST)
+
+modules: ## List available framework modules
+	@bash $(SCRIPT_DIR)/lib/modules.sh list_modules
+
+module-help: ## Show help for module discovery and framework status
+	@echo "Framework Help"
+	@bash $(SCRIPT_DIR)/lib/framework.sh framework_help
+
+module-status: ## Run status on all discovered modules
+	@bash $(SCRIPT_DIR)/lib/framework.sh framework_status
+
+install-dependencies-k3s: ## Install dependencies for the k3s module without running k3s itself
+	@bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
+
+deps-k3s: ## Show dependency resolution order for k3s
+	@bash $(SCRIPT_DIR)/lib/modules.sh deps k3s
+
+diagnose-k3s: ## Diagnose k3s module metadata and lifecycle scripts
+	@bash $(SCRIPT_DIR)/lib/modules.sh diagnose k3s
+
+##############################################################################
+# Framework module targets
+##############################################################################
+define MODULE_ACTION_TEMPLATE
+$(1)-%:
+	@bash $(SCRIPT_DIR)/lib/modules.sh run $(1) $$*
+endef
+
+$(foreach action,$(MODULE_ACTIONS),$(eval $(call MODULE_ACTION_TEMPLATE,$(action))))
 
 ##############################################################################
 # Full Deployment

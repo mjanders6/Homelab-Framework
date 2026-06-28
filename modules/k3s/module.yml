@@ -1,0 +1,13 @@
+name: k3s
+description: Lightweight Kubernetes cluster deployment for diskless Pi workers.
+version: 1.0.0
+category: cluster
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - docker
+  - network

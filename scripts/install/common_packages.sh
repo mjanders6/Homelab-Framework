@@ -11,4 +11,14 @@ set -e
 sudo apt update
 sudo apt upgrade -y
 
-sudo apt install -y     curl     wget     git     vim     htop     unzip     net-tools     ca-certificates     gnupg     lsb-release
+sudo apt install -y \
+    curl \
+    wget \
+    git \
+    vim \
+    htop \
+    unzip \
+    net-tools \
+    ca-certificates \
+    gnupg \
+    lsb-release

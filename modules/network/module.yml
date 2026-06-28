@@ -1,0 +1,12 @@
+name: network
+description: Network validation and utility functions for homelab infrastructure.
+version: 1.0.0
+category: core
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - filesystem
