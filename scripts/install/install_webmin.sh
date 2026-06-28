@@ -70,7 +70,10 @@ curl -o ${WEBMIN_SH} https://raw.githubusercontent.com/webmin/webmin/master/webm
 ##############################################################################
 
 sudo sh ${WEBMIN_SH}
-sudo apt-get install webmin --install-recommends webmin usermin
+sudo apt-get install -y \
+    --install-recommends \
+    webmin \
+    usermin
 
 ##############################################################################
 # Firewall Rules

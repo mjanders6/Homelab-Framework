@@ -19,7 +19,14 @@ set -x
 
 apt-get update -y
 apt-get upgrade -y
-apt-get install -y curl wget git make python3 python3-pip ansible
+apt-get install -y \
+    curl \
+    wget \
+    git \
+    make \
+    python3 \
+    python3-pip \
+    ansible
 
 # Install common tools
 bash "${ROOT_DIR}/scripts/install/install_git.sh"
