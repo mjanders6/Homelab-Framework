@@ -1,0 +1,12 @@
+name: nfs
+description: NFS server and client support for network boot and shared storage.
+version: 1.0.0
+category: storage
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - filesystem

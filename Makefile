@@ -31,6 +31,15 @@ module-help: ## Show help for module discovery and framework status
 module-status: ## Run status on all discovered modules
 	@bash $(SCRIPT_DIR)/lib/framework.sh framework_status
 
+install-dependencies-k3s: ## Install dependencies for the k3s module without running k3s itself
+	@bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
+
+deps-k3s: ## Show dependency resolution order for k3s
+	@bash $(SCRIPT_DIR)/lib/modules.sh deps k3s
+
+diagnose-k3s: ## Diagnose k3s module metadata and lifecycle scripts
+	@bash $(SCRIPT_DIR)/lib/modules.sh diagnose k3s
+
 ##############################################################################
 # Framework module targets
 ##############################################################################

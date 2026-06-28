@@ -1,0 +1,13 @@
+name: webmin
+description: Web-based system administration utility for the infrastructure node.
+version: 1.0.0
+category: management
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - docker
+  - filesystem
