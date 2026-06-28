@@ -1,0 +1,11 @@
+name: filesystem
+description: Shared filesystem utilities used by framework modules.
+version: 1.0.0
+category: core
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - report
+dependencies: []

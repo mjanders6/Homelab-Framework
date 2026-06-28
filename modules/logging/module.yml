@@ -1,0 +1,12 @@
+name: logging
+description: Central logging utilities and operational tracing for the framework.
+version: 1.0.0
+category: core
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+  - report
+dependencies: []
