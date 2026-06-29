@@ -4,9 +4,9 @@
 
 **Architecture Specification**
 
-Version: **1.0.0**
+Version: **2.0.0**
 
-Codename: **Foundation**
+Codename: **Sprint 2**
 
 Status: Draft
 
@@ -30,10 +30,10 @@ Status: Draft
             │ Grafana                 │
             │ Ansible                 │
             │ Longhorn Backup Storage │
-            │ PXE Server              │
+            │ Hybrid Boot Server      │
             └─────────────────────────┘
                         │
-            Network Boot + NFS Root
+            Hybrid PXE + local SSD boot
                         │
         ┌──────────┬──────────┬──────────┐
         │          │          │          │

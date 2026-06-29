@@ -1,0 +1,14 @@
+name: bootserver
+description: Desktop boot server for hybrid Raspberry Pi PXE/cloud-init boot.
+version: 1.0.0
+category: infrastructure
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - docker
+  - network
+  - filesystem

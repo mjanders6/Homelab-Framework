@@ -137,6 +137,14 @@ desktop: base ## Setup desktop as the Infrastructure Server for the Home Lab
 	# Server Management:
 	bash $(SCRIPT_DIR)/install/install_webmin.sh
 
+bootserver: base ## Install the hybrid Raspberry Pi bootserver module
+	@echo "🔧 Installing bootserver module..."
+	bash $(SCRIPT_DIR)/lib/modules.sh run install bootserver
+
+configure-bootserver: ## Configure the hybrid Raspberry Pi bootserver
+	@echo "🔧 Configuring bootserver..."
+	bash $(SCRIPT_DIR)/lib/modules.sh run configure bootserver
+
 ##############################################################################
 # Individual Services
 ##############################################################################
@@ -231,6 +239,8 @@ clean: ## Remove temporary files
 	pi4_monitor \
 	pi4_backup \
 	desktop \
+	bootserver \
+	configure-bootserver \
 	docker \
 	tailscale \
 	samba \

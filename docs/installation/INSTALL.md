@@ -24,6 +24,8 @@ sudo bash scripts/lib/modules.sh run install logging
 sudo bash scripts/lib/modules.sh run install network
 ```
 
+For bootserver setup, see [BOOTSERVER.md](BOOTSERVER.md) for the hybrid Raspberry Pi PXE/cloud-init install and configuration flow.
+
 ## Module installation
 
 The framework exposes `make` targets for modules and module helpers.

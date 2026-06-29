@@ -25,4 +25,27 @@ Key directories:
 - `tests/` — Unit, integration, and smoke test scaffolding
 - `configs/` — User-editable configuration templates
 
+Bootserver module:
+
+- `make install-bootserver` — Install the hybrid Raspberry Pi bootserver module on the desktop infrastructure server.
+- `make configure-bootserver` — Start the Docker Compose-managed TFTP and nginx bootserver stack.
+
+The bootserver installs per-node directories under `/srv/tftp/boot/` for each Pi node, and uses cloud-init for first-boot configuration so the OS is never manually configured on the Pi.
+
+Customize the supported Pi nodes before installation by setting `BOOTSERVER_NODE_NAMES`:
+
+```bash
+export BOOTSERVER_NODE_NAMES="pi5 pi4_network pi4_monitor pi4_backup"
+make install-bootserver
+```
+
+You can also use comma-separated node names:
+
+```bash
+export BOOTSERVER_NODE_NAMES="pi5,pi4_network,pi4_monitor,pi4_backup"
+make install-bootserver
+```
+
+Each Raspberry Pi is expected to boot via PXE to receive kernel and initramfs files, then continue booting from the local SSD root filesystem using cloud-init for first-boot configuration.
+
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).
