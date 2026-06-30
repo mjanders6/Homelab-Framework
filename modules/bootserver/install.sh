@@ -61,17 +61,25 @@ BOOTSERVER_NODE_NAMES="${BOOTSERVER_NODE_NAMES//,/ }"
 read -r -a NODE_NAMES <<< "${BOOTSERVER_NODE_NAMES}"
 log_info "Boot nodes: ${NODE_NAMES[*]}"
 
-for node in "${NODE_NAMES[@]}"; do
-  ensure_directory "${TFTP_ROOT}/boot/${node}"
-  if [[ ! -f "${TFTP_ROOT}/boot/${node}/meta-data" ]]; then
-    cat > "${TFTP_ROOT}/boot/${node}/meta-data" <<EOF
+if command -v ansible-playbook >/dev/null 2>&1; then
+  log_info "Generating boot assets with Ansible for the declared Raspberry Pi nodes"
+  ansible-playbook \
+    -i "${ROOT_DIR}/ansible/inventories/bootserver.ini" \
+    "${ROOT_DIR}/ansible/playbooks/bootserver.yml" \
+    --extra-vars "bootserver_node_names='${BOOTSERVER_NODE_NAMES}' bootserver_static_ip_map_file='${ROOT_DIR}/ansible/group_vars/bootserver_mac_ip_map.yml'"
+else
+  log_warn "ansible-playbook not found; falling back to baseline per-node metadata generation"
+  for node in "${NODE_NAMES[@]}"; do
+    ensure_directory "${TFTP_ROOT}/boot/${node}"
+    if [[ ! -f "${TFTP_ROOT}/boot/${node}/meta-data" ]]; then
+      cat > "${TFTP_ROOT}/boot/${node}/meta-data" <<EOF
 local-hostname: ${node}
 instance-id: ${node}
 EOF
-  fi
+    fi
 
-  if [[ ! -f "${TFTP_ROOT}/boot/${node}/user-data" ]]; then
-    cat > "${TFTP_ROOT}/boot/${node}/user-data" <<EOF
+    if [[ ! -f "${TFTP_ROOT}/boot/${node}/user-data" ]]; then
+      cat > "${TFTP_ROOT}/boot/${node}/user-data" <<EOF
 #cloud-config
 users:
   - name: ubuntu
@@ -81,7 +89,8 @@ users:
 runcmd:
   - [ sh, -c, 'echo "cloud-init completed on $(hostname)" > /var/log/cloud-init-complete.log' ]
 EOF
-  fi
-done
+    fi
+  done
+fi
 
 log_info "Bootserver install artifacts generated at ${BOOTSERVER_DIR} and ${TFTP_ROOT}"

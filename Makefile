@@ -141,6 +141,14 @@ bootserver: base ## Install the hybrid Raspberry Pi bootserver module
 	@echo "🔧 Installing bootserver module..."
 	bash $(SCRIPT_DIR)/lib/modules.sh run install bootserver
 
+build-golden-image: ansible ## Build the golden image assets for Raspberry Pi network boot provisioning
+	@echo "🔧 Building golden image assets for Raspberry Pi booting..."
+	bash $(SCRIPT_DIR)/bootserver/build_golden_image.sh
+
+bootserver-k3s: ansible ## Install K3s on the bootserver so it can manage the Raspberry Pi worker nodes
+	@echo "🔧 Installing K3s on the bootserver..."
+	bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
+
 configure-bootserver: ## Configure the hybrid Raspberry Pi bootserver
 	@echo "🔧 Configuring bootserver..."
 	bash $(SCRIPT_DIR)/lib/modules.sh run configure bootserver
@@ -240,6 +248,8 @@ clean: ## Remove temporary files
 	pi4_backup \
 	desktop \
 	bootserver \
+	build-golden-image \
+	bootserver-k3s \
 	configure-bootserver \
 	docker \
 	tailscale \

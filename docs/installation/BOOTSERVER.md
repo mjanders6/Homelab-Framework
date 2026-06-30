@@ -79,6 +79,73 @@ Each node directory should include:
 - `user-data`
 - kernel and initramfs assets as needed
 
+## User Guide
+
+### 1. Prepare the static node inventory
+
+Edit [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml) to define the MAC, static IP, gateway, DNS, package list, and post-boot commands for each Raspberry Pi node.
+
+Example:
+
+```yaml
+pi5:
+  mac: "dc:a6:32:aa:bb:cc"
+  ip: "192.168.1.51"
+  gateway: "192.168.1.1"
+  nameservers:
+    - "192.168.1.1"
+  packages:
+    - docker.io
+    - curl
+    - jq
+  runcmd:
+    - "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"server --write-kubeconfig-mode 644\" sh -"
+```
+
+### 2. Generate the boot assets for each Raspberry Pi
+
+Use the following workflow to generate the per-node directories and cloud-init configuration payloads:
+
+```bash
+make install-bootserver
+make build-golden-image
+make bootserver-k3s
+make configure-bootserver
+```
+
+The `make build-golden-image` target renders the following files for every node listed in `BOOTSERVER_NODE_NAMES`:
+
+- `/srv/tftp/boot/<node>/meta-data`
+- `/srv/tftp/boot/<node>/user-data`
+- `/srv/tftp/boot/<node>/network-config`
+- `/srv/tftp/boot/<node>/vendor-data`
+
+### 3. Customize a node profile
+
+If a node needs additional software, update its entry in [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml) and rerun:
+
+```bash
+make build-golden-image
+```
+
+This regenerates the node-specific cloud-init files so the next PXE boot uses the updated profile.
+
+### 4. Boot a Raspberry Pi from the network
+
+1. Configure the Raspberry Pi to use PXE/network boot in the firmware.
+2. Ensure the Pi is on the same subnet as the bootserver.
+3. Power on the device.
+4. Let the Pi retrieve the kernel/initramfs assets from the TFTP server and apply the cloud-init configuration from `/srv/tftp/boot/<node>/`.
+5. After first boot, confirm the static IP assignment, installed packages, and K3s join behavior are correct.
+
+### 5. Verify the bootserver state
+
+```bash
+make verify-bootserver
+```
+
+You can also inspect the generated boot assets directly under `/srv/tftp/boot/`.
+
 ## Example node config
 
 Create `/srv/tftp/boot/<node>/meta-data`:

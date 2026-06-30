@@ -1,0 +1,52 @@
+pi5:
+  mac: "dc:a6:32:aa:bb:cc"
+  ip: "192.168.1.51"
+  gateway: "192.168.1.1"
+  nameservers:
+    - "192.168.1.1"
+  packages:
+    - docker.io
+    - curl
+    - jq
+    - nfs-common
+  runcmd:
+    - "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"server --write-kubeconfig-mode 644\" sh -"
+pi4_network:
+  mac: "dc:a6:32:dd:ee:ff"
+  ip: "192.168.1.52"
+  gateway: "192.168.1.1"
+  nameservers:
+    - "192.168.1.1"
+  packages:
+    - docker.io
+    - tailscale
+    - curl
+    - jq
+  runcmd:
+    - "curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.51:6443 K3S_TOKEN=changeme sh -"
+pi4_monitor:
+  mac: "dc:a6:32:11:22:33"
+  ip: "192.168.1.53"
+  gateway: "192.168.1.1"
+  nameservers:
+    - "192.168.1.1"
+  packages:
+    - docker.io
+    - prometheus-node-exporter
+    - curl
+    - jq
+  runcmd:
+    - "curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.51:6443 K3S_TOKEN=changeme sh -"
+pi4_backup:
+  mac: "dc:a6:32:44:55:66"
+  ip: "192.168.1.54"
+  gateway: "192.168.1.1"
+  nameservers:
+    - "192.168.1.1"
+  packages:
+    - docker.io
+    - restic
+    - nfs-common
+    - samba
+  runcmd:
+    - "curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.51:6443 K3S_TOKEN=changeme sh -"
