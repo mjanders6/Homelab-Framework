@@ -3,9 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-source "${ROOT_DIR}/error.sh"
-source "${ROOT_DIR}/logging.sh"
-source "${ROOT_DIR}/modules.sh"
+source "${SCRIPT_DIR}/error.sh"
+source "${SCRIPT_DIR}/logging.sh"
+source "${SCRIPT_DIR}/modules.sh"
 
 FRAMEWORK_STATE_DIR="${FRAMEWORK_STATE_DIR:-/var/lib/homelab}"
 FRAMEWORK_LOG_DIR="${FRAMEWORK_LOG_DIR:-/var/log/homelab}"

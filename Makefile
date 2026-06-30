@@ -22,7 +22,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "Standard Targets"
 	@echo "----------------"
-	@python $(SCRIPT_DIR)/lib/help.py
+	@python $(SCRIPT_DIR)/lib/help.py # @python worked while @python3 did not.
 	@echo ""
 	@echo "Framework Module Commands"
 	@echo "-------------------------"
