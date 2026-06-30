@@ -13,11 +13,27 @@ MODULES := $(shell bash $(SCRIPT_DIR)/lib/modules.sh list_modules)
 ##############################################################################
 
 help: ## Show this help message
-	@echo "Usage: make <target>"
 	@echo ""
-	@echo "Available targets:"
-	@python -c "import pathlib, re; [print(f'  {line.split(':',1)[0]:<25} {line.split('##',1)[1].strip()}') for line in pathlib.Path('Makefile').read_text().splitlines() if re.match(r'^[A-Za-z0-9_.-]+:.*##', line)]"
-
+	@echo "Home Lab Framework"
+	@echo "=================="
+	@echo ""
+	@echo "Usage:"
+	@echo "  make <target>"
+	@echo ""
+	@echo "Standard Targets"
+	@echo "----------------"
+	@python $(SCRIPT_DIR)/lib/help.py
+	@echo ""
+	@echo "Framework Module Commands"
+	@echo "-------------------------"
+	@for action in $(MODULE_ACTIONS); do \
+		printf "  %-30s Run '$$action' on a module\n" "$$action-<module>"; \
+	done
+	@echo ""
+	@echo "Available Modules"
+	@echo "-----------------"
+	@bash $(SCRIPT_DIR)/lib/modules.sh list_modules
+	
 modules: ## List available framework modules
 	@bash $(SCRIPT_DIR)/lib/modules.sh list_modules
 
