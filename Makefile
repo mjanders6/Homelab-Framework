@@ -16,10 +16,7 @@ help: ## Show this help message
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "Available targets:"
-	@awk 'BEGIN {FS = ":.*?## "} \
-	/^[a-zA-Z_-]+:.*?## / { \
-	printf "  %-25s %s\n", $$1, $$2 \
-	}' $(MAKEFILE_LIST)
+	@python -c "import pathlib, re; [print(f'  {line.split(':',1)[0]:<25} {line.split('##',1)[1].strip()}') for line in pathlib.Path('Makefile').read_text().splitlines() if re.match(r'^[A-Za-z0-9_.-]+:.*##', line)]"
 
 modules: ## List available framework modules
 	@bash $(SCRIPT_DIR)/lib/modules.sh list_modules
@@ -44,7 +41,7 @@ diagnose-k3s: ## Diagnose k3s module metadata and lifecycle scripts
 # Framework module targets
 ##############################################################################
 define MODULE_ACTION_TEMPLATE
-$(1)-%:
+$(1)-%: ## Run $(1) action on a module
 	@bash $(SCRIPT_DIR)/lib/modules.sh run $(1) $$*
 endef
 
