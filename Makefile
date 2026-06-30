@@ -137,21 +137,28 @@ desktop: base ## Setup desktop as the Infrastructure Server for the Home Lab
 	# Server Management:
 	bash $(SCRIPT_DIR)/install/install_webmin.sh
 
-bootserver: base ## Install the hybrid Raspberry Pi bootserver module
+##############################################################################
+# Boot Server Deployment Workflow
+##############################################################################
+
+bootserver: base ## Install the hybrid Raspberry Pi bootserver module on the infrastructure host
 	@echo "🔧 Installing bootserver module..."
 	bash $(SCRIPT_DIR)/lib/modules.sh run install bootserver
 
-build-golden-image: ansible ## Build the golden image assets for Raspberry Pi network boot provisioning
+build-golden-image: ansible bootserver ## Build the golden image assets for Raspberry Pi network boot provisioning
 	@echo "🔧 Building golden image assets for Raspberry Pi booting..."
 	bash $(SCRIPT_DIR)/bootserver/build_golden_image.sh
 
-bootserver-k3s: ansible ## Install K3s on the bootserver so it can manage the Raspberry Pi worker nodes
+bootserver-k3s: ansible bootserver ## Install K3s on the bootserver so it can manage the Raspberry Pi worker nodes
 	@echo "🔧 Installing K3s on the bootserver..."
 	bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
 
-configure-bootserver: ## Configure the hybrid Raspberry Pi bootserver
+configure-bootserver: bootserver ## Configure the hybrid Raspberry Pi bootserver
 	@echo "🔧 Configuring bootserver..."
 	bash $(SCRIPT_DIR)/lib/modules.sh run configure bootserver
+
+bootserver-deploy: ansible bootserver build-golden-image bootserver-k3s configure-bootserver ## End-to-end deploy of the Raspberry Pi bootserver stack
+	@echo "🔧 Bootserver deployment workflow complete."
 
 ##############################################################################
 # Individual Services
@@ -248,6 +255,7 @@ clean: ## Remove temporary files
 	pi4_backup \
 	desktop \
 	bootserver \
+	bootserver-deploy \
 	build-golden-image \
 	bootserver-k3s \
 	configure-bootserver \
