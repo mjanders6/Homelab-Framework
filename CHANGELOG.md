@@ -12,7 +12,8 @@
 - Updated GitHub repository metadata for the rebuild-first workflow.
 - Added repository instructions and CI workflow scaffolding.
 - Set the repository CODEOWNER to @mjanders6.
-- Began phasing out the network-boot option by promoting rebuild-first automation as the supported workflow.
+- Began phasing out the network-boot and bootserver-based workflow by promoting rebuild-first automation as the supported path.
+- Began phasing out the K3s-centric deployment approach in favor of the newer rebuild-first model.
 
 ## 2.0.0 Sprint 2
 - Updated framework version for Sprint 2.

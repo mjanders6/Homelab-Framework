@@ -1,6 +1,6 @@
 # Bootserver Module
 
-The `bootserver` module is being phased out as the framework shifts to a rebuild-first workflow.
+The `bootserver` module is being phased out as the framework shifts to a rebuild-first workflow, and the broader K3s-centric deployment model is being retired in parallel.
 
 This module previously provided a self-hosted PXE/cloud-init boot environment using Docker Compose, but the supported path is now to reinstall the OS and then run the framework rebuild flow.
 

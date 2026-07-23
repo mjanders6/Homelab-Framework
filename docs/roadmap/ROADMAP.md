@@ -6,6 +6,7 @@ The current framework is centered on a hybrid PXE/cloud-init bootserver flow in 
 
 - Sprint 0 — Completed: established the rebuild-first target architecture and documented the migration away from the bootserver-centric path.
 - Sprint 1 — Completed: implemented the image-based foundation for role-specific rebuilds, including role mapping, artifact packaging, validation checks, and CI coverage.
+- Future work continues the broader migration away from both the bootserver path and the K3s-centric model.
 
 ### Recommended sprint structure
 

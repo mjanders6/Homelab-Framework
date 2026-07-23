@@ -37,7 +37,6 @@ Status: Draft
         ┌──────────┬──────────┬──────────┐
         │          │          │          │
         Pi 5      Pi 4       Pi 4       Pi 4
-        K3s Node   K3s Node   K3s Node   K3s Node
 ```
 
 ---
@@ -47,6 +46,8 @@ Status: Draft
 This document defines the architectural principles, conventions, and development standards for the Homelab Framework.
 
 The objective of the framework is to provide a fully automated, reproducible Infrastructure-as-Code (IaC) platform capable of rebuilding an entire homelab environment from a fresh Ubuntu Server installation using a single source-controlled repository.
+
+The framework is intentionally moving away from the legacy bootserver and K3s-centric deployment model toward a rebuild-first workflow that starts from a fresh OS install and uses the shared bootstrap and role automation path.
 
 The framework emphasizes:
 
@@ -58,7 +59,7 @@ The framework emphasizes:
 * Idempotency
 * Extensibility
 
-This document serves as the governing specification for all project development.
+This document serves as the governing specification for all project development, including the migration away from network-boot, bootserver-based provisioning, and older K3s-specific assumptions.
 
 ---
 
@@ -153,6 +154,8 @@ No layer may bypass lower layers.
 Manual procedures are temporary.
 
 If a procedure is repeated more than once, it should become automated.
+
+The preferred automation path is a rebuild-first experience that does not depend on a bootserver or PXE flow, and that does not rely on K3s as the default control-plane assumption for every deployment.
 
 ---
 
