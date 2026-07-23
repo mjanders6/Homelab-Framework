@@ -1,0 +1,10 @@
+# Global code owners for HomeLab Framework
+# Default owner for everything in the repository
+* @mjanders6
+
+# Infrastructure and automation areas
+/ansible/ @mjanders6
+/configs/ @mjanders6
+/modules/ @mjanders6
+/scripts/ @mjanders6
+/.github/ @mjanders6
