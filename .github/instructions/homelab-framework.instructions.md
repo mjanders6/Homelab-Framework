@@ -4,7 +4,7 @@ applyTo: "**/*"
 
 # Homelab Framework Instructions
 
-- Repository version: 2.1.0
+- Repository version: 2.2.0
 - Primary maintainer: @mjanders6
 - Preferred workflow: rebuild-first, not network-boot-first.
 - Keep changes modular, idempotent, and well documented.

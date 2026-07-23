@@ -181,6 +181,9 @@ rebuild-pi4-backup: base ## Rebuild a Raspberry Pi 4 backup node
 	@echo "🔧 Starting Pi 4 backup rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_backup
 
+image-%: ## Build a role-specific image artifact for Sprint 1 testing
+	@bash $(SCRIPT_DIR)/images/build-role-image.sh $* $(VERSION)
+
 ##############################################################################
 # Individual Services
 ##############################################################################

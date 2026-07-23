@@ -17,6 +17,16 @@ jobs:
         run: |
           bash -n scripts/rebuild/rebuild-node.sh
           bash -n scripts/bootstrap/bootstrap.sh
+          bash -n scripts/images/build-role-image.sh
+          bash -n tests/smoke/test_image_build_workflow.sh
+
+      - name: Run image workflow smoke test
+        run: |
+          bash tests/smoke/test_image_build_workflow.sh
+
+      - name: Show validation checklist
+        run: |
+          echo "Image validation checklist: scripts/images/validation-checklist.md"
 
       - name: Show repository version
         run: cat VERSION

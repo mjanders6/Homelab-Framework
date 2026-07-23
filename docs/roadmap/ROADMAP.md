@@ -2,6 +2,11 @@
 
 The current framework is centered on a hybrid PXE/cloud-init bootserver flow in [README.md](README.md) and the bootserver module in [modules/bootserver/README.md](modules/bootserver/README.md). To remove that dependency while keeping fast rebuilds, the migration should shift to a local-image and post-install automation model.
 
+### Status snapshot
+
+- Sprint 0 — Completed: established the rebuild-first target architecture and documented the migration away from the bootserver-centric path.
+- Sprint 1 — Completed: implemented the image-based foundation for role-specific rebuilds, including role mapping, artifact packaging, validation checks, and CI coverage.
+
 ### Recommended sprint structure
 
 1. Sprint 0 — Baseline and target architecture
@@ -10,7 +15,7 @@ The current framework is centered on a hybrid PXE/cloud-init bootserver flow in 
    - Decide which node roles will use which images and what bootstrap data each one needs.
    - Deliverables: architecture decision record, updated repo roadmap, explicit scope for removing PXE/TFTP from the supported path.
 
-2. Sprint 1 — Build a golden-image workflow
+2. Sprint 1 — Completed: Build a golden-image workflow
    - Create a repeatable image-build path for each node type using Ubuntu Server as the base.
    - Bake in basic identity, SSH access, hostname defaults, and required packages into the image.
    - Store images in a controlled location and version them with the repo or a release artifact store.

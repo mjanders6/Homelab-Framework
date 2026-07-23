@@ -33,6 +33,8 @@ Bootserver module:
 
 The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
 
+Current milestone: Sprint 1 is complete. The repository now includes a versioned role-image workflow, validation guidance, smoke tests, and CI coverage for the image build path.
+
 ## Rebuild workflow
 
 A first rebuild entrypoint is now available for fresh OS installs:

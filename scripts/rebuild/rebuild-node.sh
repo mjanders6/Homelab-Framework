@@ -7,6 +7,7 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${ROOT_DIR}"
 
 ROLE="${1:-${HOMELAB_ROLE:-default}}"
+ROLE_IMAGE_MAP_SCRIPT="${ROOT_DIR}/scripts/rebuild/role-image-map.sh"
 DRY_RUN="${DRY_RUN:-false}"
 PRINT_ROLE="false"
 
@@ -72,6 +73,9 @@ if [[ "${PRINT_ROLE}" == "true" ]]; then
   echo "${ROLE}"
   exit 0
 fi
+
+IMAGE_NAME="$(bash "${ROLE_IMAGE_MAP_SCRIPT}" "${ROLE}")"
+echo "Resolved image for role ${ROLE}: ${IMAGE_NAME}"
 
 echo "Running bootstrap..."
 run_script "${ROOT_DIR}/scripts/bootstrap/bootstrap.sh"
