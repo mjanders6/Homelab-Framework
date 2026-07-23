@@ -1,8 +1,8 @@
 # Bootserver Module
 
-The `bootserver` module installs and configures the hybrid Raspberry Pi bootserver for the Homelab Framework.
+The `bootserver` module is being phased out as the framework shifts to a rebuild-first workflow.
 
-This module provides a small self-hosted PXE/cloud-init boot environment using Docker Compose.
+This module previously provided a self-hosted PXE/cloud-init boot environment using Docker Compose, but the supported path is now to reinstall the OS and then run the framework rebuild flow.
 
 ## What it does
 
@@ -15,7 +15,7 @@ This module provides a small self-hosted PXE/cloud-init boot environment using D
   - `/srv/tftp/boot/pi4_monitor`
   - `/srv/tftp/boot/pi4_backup`
 - Ensures Raspberry Pi 4 nodes do not share a single boot area; each node is independent.
-- Uses `cloud-init` metadata and user-data to automate first-boot configuration
+- Used to be responsible for cloud-init-driven first-boot provisioning
 
 ## Capabilities
 
@@ -48,6 +48,4 @@ make status-bootserver
 
 ## Notes
 
-Each Raspberry Pi should use PXE to fetch kernel and initramfs assets from the desktop bootserver, then use its local SSD for the root filesystem.
-
-Per-node configuration files live under `/srv/tftp/boot/<node>/`.
+The old workflow relied on a bootserver and PXE path, but the supported direction is now a fresh OS install followed by the framework rebuild flow.

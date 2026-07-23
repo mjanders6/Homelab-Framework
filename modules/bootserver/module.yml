@@ -1,5 +1,5 @@
 name: bootserver
-description: Desktop boot server for hybrid Raspberry Pi PXE/cloud-init boot.
+description: Legacy bootserver module retained for reference during the rebuild migration.
 version: 1.0.0
 category: infrastructure
 capabilities:

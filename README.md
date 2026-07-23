@@ -27,29 +27,23 @@ Key directories:
 
 Bootserver module:
 
-- `make install-bootserver` — Install the hybrid Raspberry Pi bootserver module on the desktop infrastructure server.
-- `make build-golden-image` — Generate per-node cloud-init boot assets for Raspberry Pi 4/5 network booting.
-- `make bootserver-k3s` — Install K3s on the bootserver so it can manage the Pi worker nodes.
-- `make configure-bootserver` — Start the Docker Compose-managed TFTP and nginx bootserver stack.
+- `make rebuild-default` — Start the rebuild flow for a fresh node install.
+- `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
+- `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
 
-The bootserver installs per-node directories under `/srv/tftp/boot/` for each Pi node, and uses cloud-init for first-boot configuration so the OS is never manually configured on the Pi.
+The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
 
-Customize the supported Pi nodes before installation by setting `BOOTSERVER_NODE_NAMES`:
+## Rebuild workflow
 
-```bash
-export BOOTSERVER_NODE_NAMES="pi5 pi4_network pi4_monitor pi4_backup"
-make install-bootserver
-```
-
-You can also use comma-separated node names:
+A first rebuild entrypoint is now available for fresh OS installs:
 
 ```bash
-export BOOTSERVER_NODE_NAMES="pi5,pi4_network,pi4_monitor,pi4_backup"
-make install-bootserver
+make rebuild-default
+# or
+make rebuild-pi5
+make rebuild-desktop
 ```
 
-Each Raspberry Pi is expected to boot via PXE to receive kernel and initramfs files, then continue booting from the local SSD root filesystem using cloud-init for first-boot configuration.
-
-The bootserver workflow is driven by the static node map in [ansible/group_vars/bootserver_mac_ip_map.yml](ansible/group_vars/bootserver_mac_ip_map.yml), which defines the per-node MAC address, static IP, and cloud-init packages/bootstrap commands used during provisioning.
+This starts the bootstrap flow for a newly installed node and is intended as the first step toward a network-boot-free rebuild experience.
 
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).

@@ -22,7 +22,6 @@ Status: Draft
             │ DHCP                    │
             │ DNS                     │
             │ NFS                     │
-            │ TFTP                    │
             │ Samba                   │
             │ Git                     │
             │ Docker Registry         │
@@ -30,10 +29,10 @@ Status: Draft
             │ Grafana                 │
             │ Ansible                 │
             │ Longhorn Backup Storage │
-            │ Hybrid Boot Server      │
+            │ Rebuild Automation      │
             └─────────────────────────┘
                         │
-            Hybrid PXE + local SSD boot
+            Fresh OS + bootstrap + role automation
                         │
         ┌──────────┬──────────┬──────────┐
         │          │          │          │

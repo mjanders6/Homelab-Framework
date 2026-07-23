@@ -69,6 +69,9 @@ $(foreach action,$(MODULE_ACTIONS),$(eval $(call MODULE_ACTION_TEMPLATE,$(action
 
 all: pi5 pi4_network pi4_monitor pi4_backup desktop ## Run all node setups
 
+rebuild-%: ## Rebuild a node from a fresh OS install using the bootstrap flow
+	@bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh $*
+
 ##############################################################################
 # Base Setup
 ##############################################################################
@@ -151,27 +154,32 @@ desktop: base ## Setup desktop as the Infrastructure Server for the Home Lab
 	bash $(SCRIPT_DIR)/install/install_webmin.sh
 
 ##############################################################################
-# Boot Server Deployment Workflow
+# Rebuild Workflow
 ##############################################################################
 
-bootserver: base ## Install the hybrid Raspberry Pi bootserver module on the infrastructure host
-	@echo "🔧 Installing bootserver module..."
-	bash $(SCRIPT_DIR)/lib/modules.sh run install bootserver
+rebuild-default: base ## Start the rebuild flow for a fresh node install
+	@echo "🔧 Starting default rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh default
 
-build-golden-image: ansible bootserver ## Build the golden image assets for Raspberry Pi network boot provisioning
-	@echo "🔧 Building golden image assets for Raspberry Pi booting..."
-	bash $(SCRIPT_DIR)/bootserver/build_golden_image.sh
+rebuild-desktop: base ## Rebuild the desktop/infrastructure host
+	@echo "🔧 Starting desktop rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh desktop
 
-bootserver-k3s: ansible bootserver ## Install K3s on the bootserver so it can manage the Raspberry Pi worker nodes
-	@echo "🔧 Installing K3s on the bootserver..."
-	bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
+rebuild-pi5: base ## Rebuild a Raspberry Pi 5 node
+	@echo "🔧 Starting Pi 5 rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi5
 
-configure-bootserver: bootserver ## Configure the hybrid Raspberry Pi bootserver
-	@echo "🔧 Configuring bootserver..."
-	bash $(SCRIPT_DIR)/lib/modules.sh run configure bootserver
+rebuild-pi4-network: base ## Rebuild a Raspberry Pi 4 networking node
+	@echo "🔧 Starting Pi 4 networking rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_network
 
-bootserver-deploy: ansible bootserver build-golden-image bootserver-k3s configure-bootserver ## End-to-end deploy of the Raspberry Pi bootserver stack
-	@echo "🔧 Bootserver deployment workflow complete."
+rebuild-pi4-monitor: base ## Rebuild a Raspberry Pi 4 monitoring node
+	@echo "🔧 Starting Pi 4 monitoring rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_monitor
+
+rebuild-pi4-backup: base ## Rebuild a Raspberry Pi 4 backup node
+	@echo "🔧 Starting Pi 4 backup rebuild flow..."
+	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_backup
 
 ##############################################################################
 # Individual Services
@@ -268,10 +276,6 @@ clean: ## Remove temporary files
 	pi4_backup \
 	desktop \
 	bootserver \
-	bootserver-deploy \
-	build-golden-image \
-	bootserver-k3s \
-	configure-bootserver \
 	docker \
 	tailscale \
 	samba \

@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: |
+          bash -n scripts/rebuild/rebuild-node.sh
+          bash -n scripts/bootstrap/bootstrap.sh
+
+      - name: Show repository version
+        run: cat VERSION

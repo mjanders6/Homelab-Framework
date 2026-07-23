@@ -24,7 +24,7 @@ sudo bash scripts/lib/modules.sh run install logging
 sudo bash scripts/lib/modules.sh run install network
 ```
 
-For bootserver setup, see [BOOTSERVER.md](BOOTSERVER.md) for the hybrid Raspberry Pi PXE/cloud-init install and configuration flow.
+For rebuild-based setup, start with the bootstrap flow and then run a rebuild target such as `make rebuild-pi5` or `make rebuild-desktop`.
 
 ## Module installation
 
