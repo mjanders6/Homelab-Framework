@@ -28,9 +28,9 @@ sudo apt install -y \
     docker-buildx-plugin \
     docker-compose-plugin
 
+sudo usermod -aG docker $USER
+
 sudo systemctl enable docker
 sudo systemctl start docker
-
-sudo usermod -aG docker $USER
 
 echo "Docker installation is complete. Log out and log back in to use Docker without sudo."
