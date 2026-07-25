@@ -22,7 +22,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "Standard Targets"
 	@echo "----------------"
-	@pythons $(SCRIPT_DIR)/lib/help.py # @python3 worked for Ubuntu Server 24.04
+	@python3 $(SCRIPT_DIR)/lib/help.py # @python3 worked for Ubuntu Server 24.04
 	@echo ""
 	@echo "Framework Module Commands"
 	@echo "-------------------------"
