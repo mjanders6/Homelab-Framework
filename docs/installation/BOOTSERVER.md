@@ -83,24 +83,16 @@ Each node directory should include:
 
 ### 1. Prepare the static node inventory
 
-Edit [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml) to define the MAC, static IP, gateway, DNS, package list, and post-boot commands for each Raspberry Pi node.
+Set MAC and IP addresses in [`.env`](../../.env.example) (copy from `.env.example`):
 
-Example:
-
-```yaml
-pi5:
-  mac: "dc:a6:32:aa:bb:cc"
-  ip: "192.168.1.51"
-  gateway: "192.168.1.1"
-  nameservers:
-    - "192.168.1.1"
-  packages:
-    - docker.io
-    - curl
-    - jq
-  runcmd:
-    - "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"server --write-kubeconfig-mode 644\" sh -"
+```bash
+PI5_MAC=dc:a6:32:aa:bb:cc
+PI5_IP=192.168.1.51
+NETWORK_GATEWAY=192.168.1.1
+NETWORK_NAMESERVER=192.168.1.1
 ```
+
+Package lists and post-boot commands stay in [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml). Shared gateway/DNS defaults are in [ansible/group_vars/network.yml](../../ansible/group_vars/network.yml). Env vars override the YAML map at render time.
 
 ### 2. Generate the boot assets for each Raspberry Pi
 

@@ -7,15 +7,40 @@
     bootserver_node_names: "pi5 pi4_network pi4_monitor pi4_backup"
     bootserver_root: "/srv/tftp"
     bootserver_static_ip_map_file: "{{ playbook_dir }}/../group_vars/bootserver_mac_ip_map.yml"
+    bootserver_network_vars_file: "{{ playbook_dir }}/../group_vars/network.yml"
   tasks:
+    - name: Load shared network defaults
+      include_vars:
+        file: "{{ bootserver_network_vars_file }}"
+
     - name: Load static IP mapping file
       include_vars:
         file: "{{ bootserver_static_ip_map_file }}"
         name: bootserver_static_ip_map
 
+    - name: Resolve gateway and DNS from env overlays
+      set_fact:
+        resolved_network_gateway: "{{ lookup('env', 'NETWORK_GATEWAY') | default(homelab_network_gateway, true) }}"
+        resolved_network_nameservers: "{{ [lookup('env', 'NETWORK_NAMESERVER') | default(homelab_network_nameservers[0], true)] }}"
+        resolved_network_prefix_length: "{{ lookup('env', 'NETWORK_PREFIX_LENGTH') | default(homelab_network_prefix_length, true) }}"
+
     - name: Normalize node list
       set_fact:
         normalized_node_names: "{{ bootserver_node_names.split() }}"
+
+    - name: Resolve per-node MAC and IP (env overrides map)
+      set_fact:
+        resolved_node_network: "{{ resolved_node_network | default({}) | combine({
+          item: {
+            'mac': lookup('env', bootserver_env_key_map[item].mac) | default(bootserver_static_ip_map[item].mac, true),
+            'ip': lookup('env', bootserver_env_key_map[item].ip) | default(bootserver_static_ip_map[item].ip, true),
+            'gateway': bootserver_static_ip_map[item].gateway | default(resolved_network_gateway),
+            'nameservers': bootserver_static_ip_map[item].nameservers | default(resolved_network_nameservers),
+            'packages': bootserver_static_ip_map[item].packages | default(['curl', 'jq', 'net-tools', 'openssh-server']),
+            'runcmd': bootserver_static_ip_map[item].runcmd | default([])
+          }
+        }) }}"
+      loop: "{{ normalized_node_names }}"
 
     - name: Ensure per-node boot directories exist
       ansible.builtin.file:
@@ -41,10 +66,10 @@
       loop: "{{ normalized_node_names }}"
       vars:
         node_name: "{{ item }}"
-        node_static_ip: "{{ bootserver_static_ip_map[item].ip | default('192.168.1.50') }}"
-        node_mac_address: "{{ bootserver_static_ip_map[item].mac | default('00:00:00:00:00:00') }}"
-        node_packages: "{{ bootserver_static_ip_map[item].packages | default(['curl', 'jq', 'net-tools', 'openssh-server']) }}"
-        node_runcmd: "{{ bootserver_static_ip_map[item].runcmd | default([]) }}"
+        node_static_ip: "{{ resolved_node_network[item].ip }}"
+        node_mac_address: "{{ resolved_node_network[item].mac }}"
+        node_packages: "{{ resolved_node_network[item].packages }}"
+        node_runcmd: "{{ resolved_node_network[item].runcmd | map('replace', '__K3S_SERVER_IP__', resolved_node_network.pi5.ip) | list }}"
 
     - name: Render network-config for each node
       ansible.builtin.template:
@@ -54,9 +79,10 @@
       loop: "{{ normalized_node_names }}"
       vars:
         node_name: "{{ item }}"
-        node_static_ip: "{{ bootserver_static_ip_map[item].ip | default('192.168.1.50') }}"
-        node_gateway: "{{ bootserver_static_ip_map[item].gateway | default('192.168.1.1') }}"
-        node_nameservers: "{{ bootserver_static_ip_map[item].nameservers | default(['192.168.1.1']) }}"
+        node_static_ip: "{{ resolved_node_network[item].ip }}"
+        node_gateway: "{{ resolved_node_network[item].gateway }}"
+        node_nameservers: "{{ resolved_node_network[item].nameservers }}"
+        node_prefix_length: "{{ resolved_network_prefix_length }}"
 
     - name: Create cloud-init vendor-data placeholder if missing
       ansible.builtin.copy:

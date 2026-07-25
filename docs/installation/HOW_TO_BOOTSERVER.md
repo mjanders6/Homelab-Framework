@@ -26,33 +26,18 @@ This starts the TFTP and nginx containers so the host can serve boot assets over
 
 ## 2. Define the Raspberry Pi nodes
 
-Edit the node map in [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml) and set one entry per Raspberry Pi.
+Set each node's MAC and IP in `.env` (copy from [`.env.example`](../../.env.example)):
 
-Each entry should contain:
-
-- `mac`: the Pi MAC address
-- `ip`: the static IP for that Pi
-- `gateway`: the network gateway
-- `nameservers`: DNS servers
-- `packages`: packages to install on first boot
-- `runcmd`: commands to run after the first boot
-
-Example:
-
-```yaml
-pi5:
-  mac: "dc:a6:32:aa:bb:cc"
-  ip: "192.168.1.51"
-  gateway: "192.168.1.1"
-  nameservers:
-    - "192.168.1.1"
-  packages:
-    - docker.io
-    - curl
-    - jq
-  runcmd:
-    - "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"server --write-kubeconfig-mode 644\" sh -"
+```bash
+PI5_MAC=dc:a6:32:aa:bb:cc
+PI5_IP=192.168.1.51
+PI4_NETWORK_MAC=
+PI4_NETWORK_IP=192.168.1.52
+NETWORK_GATEWAY=192.168.1.1
+NETWORK_NAMESERVER=192.168.1.1
 ```
+
+Ansible overlays those values at render time and falls back to [ansible/group_vars/bootserver_mac_ip_map.yml](../../ansible/group_vars/bootserver_mac_ip_map.yml) for packages and post-boot `runcmd`. Shared gateway/DNS defaults live in [ansible/group_vars/network.yml](../../ansible/group_vars/network.yml).
 
 ## 3. Generate the golden image boot assets
 
