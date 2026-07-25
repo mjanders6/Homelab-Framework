@@ -25,4 +25,29 @@ Key directories:
 - `tests/` — Unit, integration, and smoke test scaffolding
 - `configs/` — User-editable configuration templates
 
+Bootserver module:
+
+- `make rebuild-default` — Start the rebuild flow for a fresh node install.
+- `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
+- `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
+
+The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
+
+The repository is also moving away from the legacy bootserver and K3s-centric approach, with the rebuild-first path becoming the primary supported model.
+
+Current milestone: Sprint 1 is complete. The repository now includes a versioned role-image workflow, validation guidance, smoke tests, and CI coverage for the image build path.
+
+## Rebuild workflow
+
+A first rebuild entrypoint is now available for fresh OS installs:
+
+```bash
+make rebuild-default
+# or
+make rebuild-pi5
+make rebuild-desktop
+```
+
+This starts the bootstrap flow for a newly installed node and is intended as the first step toward a network-boot-free rebuild experience.
+
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).

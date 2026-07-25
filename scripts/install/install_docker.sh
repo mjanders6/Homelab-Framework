@@ -11,6 +11,7 @@ set -e
 sudo install -m 0755 -d /etc/apt/keyrings
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
 deb_arch=$(dpkg --print-architecture)
 deb_codename=$(. /etc/os-release && echo $VERSION_CODENAME)
@@ -31,3 +32,5 @@ sudo systemctl enable docker
 sudo systemctl start docker
 
 sudo usermod -aG docker $USER
+
+echo "Docker installation is complete. Log out and log back in to use Docker without sudo."

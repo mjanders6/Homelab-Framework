@@ -2,6 +2,8 @@
 
 This document explains how to bootstrap and install Homelab Framework on a fresh Ubuntu host.
 
+The supported path is now a rebuild-first workflow that avoids the legacy bootserver and K3s-centric approach. New deployments should start from a fresh OS installation and proceed through the framework bootstrap and role automation flow.
+
 ## Prerequisites
 
 - Ubuntu Server 20.04 or later
@@ -23,6 +25,8 @@ sudo bash scripts/lib/modules.sh run install filesystem
 sudo bash scripts/lib/modules.sh run install logging
 sudo bash scripts/lib/modules.sh run install network
 ```
+
+For rebuild-based setup, start with the bootstrap flow and then run a rebuild target such as `make rebuild-pi5` or `make rebuild-desktop`. This is the recommended path for new installs and replaces the older bootserver-based and K3s-first provisioning flow.
 
 ## Module installation
 

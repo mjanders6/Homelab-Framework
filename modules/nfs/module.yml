@@ -1,5 +1,5 @@
 name: nfs
-description: NFS server and client support for network boot and shared storage.
+description: NFS server and client support for shared storage.
 version: 1.0.0
 category: storage
 capabilities:

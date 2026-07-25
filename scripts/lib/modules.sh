@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
+: '
+This entire block of code
+and text is treated as a comment.
+None of these lines will run.
+'
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-source "${ROOT_DIR}/error.sh"
-source "${ROOT_DIR}/logging.sh"
+source "${SCRIPT_DIR}/error.sh"
+source "${SCRIPT_DIR}/logging.sh"
 
 MODULES_DIR="${ROOT_DIR}/../modules"
 
 list_modules() {
-  find "${MODULES_DIR}" -maxdepth 1 -mindepth 1 -type d | sort | xargs -n1 basename
+  find "${MODULES_DIR}" -mindepth 1 -maxdepth 1 -type d -print0 |
+    xargs -0 -n1 basename |
+    sort
 }
 
 module_manifest() {

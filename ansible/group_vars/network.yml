@@ -1,0 +1,21 @@
+---
+# Shared LAN settings (overridable via .env / environment variables).
+homelab_network_gateway: "192.168.1.1"
+homelab_network_nameservers:
+  - "192.168.1.1"
+homelab_network_prefix_length: 24
+
+# Env var names for per-node MAC/IP overlays (see .env.example).
+bootserver_env_key_map:
+  pi5:
+    mac: PI5_MAC
+    ip: PI5_IP
+  pi4_network:
+    mac: PI4_NETWORK_MAC
+    ip: PI4_NETWORK_IP
+  pi4_monitor:
+    mac: PI4_MONITOR_MAC
+    ip: PI4_MONITOR_IP
+  pi4_backup:
+    mac: PI4_BACKUP_MAC
+    ip: PI4_BACKUP_IP

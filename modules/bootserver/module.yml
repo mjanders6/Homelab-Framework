@@ -1,0 +1,14 @@
+name: bootserver
+description: Legacy bootserver module retained for reference during the rebuild migration.
+version: 1.0.0
+category: infrastructure
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - docker
+  - network
+  - filesystem
