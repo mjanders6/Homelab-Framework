@@ -1,0 +1,13 @@
+name: siyuan
+description: Self-hosted SiYuan block-based markdown notebook (Obsidian-style bidirectional links + graph view), served via Docker with its workspace backed by a Samba share.
+version: 1.0.0
+category: knowledge-management
+capabilities:
+  - install
+  - configure
+  - verify
+  - status
+  - remove
+dependencies:
+  - docker
+  - filesystem

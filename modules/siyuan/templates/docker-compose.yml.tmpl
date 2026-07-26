@@ -1,0 +1,23 @@
+# Rendered by modules/siyuan/install.sh (sed substitution) — do not edit by hand.
+# Source of truth is the repo's .env file (see .env.example for SIYUAN_* keys).
+
+services:
+  siyuan:
+    image: {{SIYUAN_IMAGE}}
+    container_name: {{SIYUAN_CONTAINER_NAME}}
+    restart: unless-stopped
+    ports:
+      - "{{SIYUAN_PORT}}:6806"
+    volumes:
+      - {{SIYUAN_WORKSPACE_PATH}}:/siyuan/workspace
+    environment:
+      - TZ=${TZ:-UTC}
+    command:
+      - --workspace=/siyuan/workspace/
+      - --accessAuthCode={{SIYUAN_ACCESS_AUTH_CODE}}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6806/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
