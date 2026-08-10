@@ -49,4 +49,4 @@ dependencies:
   - network
 ```
 
-This allows `make install-k3s` to install `docker` and `network` first.
+This allows an install target such as `make install-<module>` to install its declared dependencies first.

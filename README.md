@@ -25,11 +25,12 @@ Key directories:
 - `tests/` — Unit, integration, and smoke test scaffolding
 - `configs/` — User-editable configuration templates
 
-Bootserver module:
+Rebuild workflow:
 
 - `make rebuild-default` — Start the rebuild flow for a fresh node install.
 - `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
 - `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
+- `make cli` — Launch an interactive command-node CLI that can bootstrap the command node, run Ansible playbooks, rebuild roles, and set environment variables.
 
 The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
 

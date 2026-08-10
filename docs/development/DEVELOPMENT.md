@@ -51,7 +51,7 @@ Supported actions:
 The loader resolves dependencies automatically for `install`, `configure`, and `verify`.
 
 ```bash
-make install-k3s
+make install-<module>
 ```
 
 This installs dependencies first before the target module.

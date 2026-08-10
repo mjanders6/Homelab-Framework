@@ -44,14 +44,8 @@ module-help: ## Show help for module discovery and framework status
 module-status: ## Run status on all discovered modules
 	@bash $(SCRIPT_DIR)/lib/framework.sh framework_status
 
-install-dependencies-k3s: ## Install dependencies for the k3s module without running k3s itself
-	@bash $(SCRIPT_DIR)/lib/modules.sh run install k3s
-
-deps-k3s: ## Show dependency resolution order for k3s
-	@bash $(SCRIPT_DIR)/lib/modules.sh deps k3s
-
-diagnose-k3s: ## Diagnose k3s module metadata and lifecycle scripts
-	@bash $(SCRIPT_DIR)/lib/modules.sh diagnose k3s
+cli: ## Launch the interactive Homelab command node CLI
+	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh
 
 ##############################################################################
 # Framework module targets
@@ -91,7 +85,6 @@ pi5: base ## Setup Raspberry Pi 5 application node
 	@echo "🔧 Setting up Raspberry Pi 5..."
 
 	bash $(SCRIPT_DIR)/install/install_docker.sh
-	bash $(SCRIPT_DIR)/install/install_cockpit.sh
 	bash $(SCRIPT_DIR)/install/install_ansible.sh
 	bash $(SCRIPT_DIR)/configure/setup_ansible_directories.sh
 
@@ -104,7 +97,6 @@ pi4_network: base ## Setup Raspberry Pi 4 networking node
 
 	bash $(SCRIPT_DIR)/install/install_docker.sh
 	bash $(SCRIPT_DIR)/install/install_tailscale.sh
-	bash $(SCRIPT_DIR)/install/install_cockpit.sh
 
 	# Optional:
 	# bash $(SCRIPT_DIR)/install/install_pihole.sh
@@ -118,7 +110,6 @@ pi4_monitor: base ## Setup Raspberry Pi 4 monitoring node
 
 	bash $(SCRIPT_DIR)/install/install_docker.sh
 	bash $(SCRIPT_DIR)/install/install_node_exporter.sh
-	bash $(SCRIPT_DIR)/install/install_cockpit.sh
 
 ##############################################################################
 # Raspberry Pi 4 — Backup Node
@@ -128,14 +119,11 @@ pi4_backup: base ## Setup Raspberry Pi 4 backup node
 	@echo "🔧 Setting up Raspberry Pi 4 backup node..."
 
 	bash $(SCRIPT_DIR)/install/install_docker.sh
-	bash $(SCRIPT_DIR)/install/install_restic.sh
 
 	# Samba
 	bash $(SCRIPT_DIR)/install/install_samba.sh
 	bash $(SCRIPT_DIR)/configure/configure_samba_shares.sh
 
-	# Management
-	bash $(SCRIPT_DIR)/install/install_cockpit.sh
 	# Optional:
 	# bash $(SCRIPT_DIR)/install/install_webmin.sh
 
@@ -212,10 +200,6 @@ samba-config: ## Configure Samba shares/directories
 # Backup / Monitoring
 ##############################################################################
 
-restic: ## Install Restic
-	@echo "🔧 Installing Restic..."
-	bash $(SCRIPT_DIR)/install/install_restic.sh
-
 monitoring: ## Install Node Exporter
 	@echo "🔧 Installing monitoring tools..."
 	bash $(SCRIPT_DIR)/install/install_node_exporter.sh
@@ -224,21 +208,9 @@ monitoring: ## Install Node Exporter
 # Media
 ##############################################################################
 
-jellyfin: ## Install Jellyfin
-	@echo "🔧 Installing Jellyfin..."
-	bash $(SCRIPT_DIR)/install/install_jellyfin.sh
-
 ##############################################################################
 # Management
 ##############################################################################
-
-cockpit: ## Install Cockpit
-	@echo "🔧 Installing Cockpit..."
-	bash $(SCRIPT_DIR)/install/install_cockpit.sh
-
-remove-cockpit: ## Remove Cockpit
-	@echo "🔧 Removing Cockpit..."
-	bash $(SCRIPT_DIR)/cleanup/remove_cockpit.sh
 
 webmin: ## Install Webmin
 	@echo "🔧 Installing Webmin..."
@@ -278,17 +250,13 @@ clean: ## Remove temporary files
 	pi4_monitor \
 	pi4_backup \
 	desktop \
-	bootserver \
 	docker \
 	tailscale \
 	samba \
 	samba-config \
-	restic \
 	monitoring \
-	jellyfin \
-	cockpit \
-	remove-cockpit \
 	webmin \
 	ansible \
 	ansible-dirs \
+	cli \
 	clean

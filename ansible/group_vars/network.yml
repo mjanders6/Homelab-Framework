@@ -6,7 +6,7 @@ homelab_network_nameservers:
 homelab_network_prefix_length: 24
 
 # Env var names for per-node MAC/IP overlays (see .env.example).
-bootserver_env_key_map:
+node_env_key_map:
   pi5:
     mac: PI5_MAC
     ip: PI5_IP

@@ -16,9 +16,14 @@ This sprint focuses on making reinstall-driven setup work without PXE or TFTP.
 
 ## Deliverables
 
-- A documented bootstrap workflow for a newly installed node.
-- Updated inventory or role selection for the new path.
-- A verified command or script that performs the first automation pass.
+- [x] A documented bootstrap workflow for a newly installed node.
+- [x] Updated inventory or role selection for the new path.
+- [x] A verified command or script that performs the first automation pass.
+- [x] A command-node CLI entrypoint for rebuild and playbook orchestration.
+
+## Status
+
+Sprint 2 is complete. The command-node CLI and rebuild-first post-install workflow have been implemented, and legacy bootserver/K3s automation has been retired.
 
 ## Suggested Tasks
 

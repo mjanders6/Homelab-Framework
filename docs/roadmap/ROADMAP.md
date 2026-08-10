@@ -6,7 +6,8 @@ The current framework is centered on a hybrid PXE/cloud-init bootserver flow in 
 
 - Sprint 0 — Completed: established the rebuild-first target architecture and documented the migration away from the bootserver-centric path.
 - Sprint 1 — Completed: implemented the image-based foundation for role-specific rebuilds, including role mapping, artifact packaging, validation checks, and CI coverage.
-- Future work continues the broader migration away from both the bootserver path and the K3s-centric model.
+- Sprint 2 — Completed: replaced first-boot bootserver automation with a local image + post-install bootstrap flow, added the command-node CLI, and retired legacy bootserver/K3s references.
+- Future work continues the broader migration away from both the bootserver path and the K3s-centric model, with Sprint 3 focused on infrastructure service migration.
 
 ### Recommended sprint structure
 
@@ -22,11 +23,12 @@ The current framework is centered on a hybrid PXE/cloud-init bootserver flow in 
    - Store images in a controlled location and version them with the repo or a release artifact store.
    - Deliverables: image build scripts, documented image naming/versioning, one tested image per primary node type.
 
-3. Sprint 2 — Replace first-boot automation with a local bootstrap flow
-   - Introduce a bootstrap workflow that runs after the node is installed from the image.
-   - Reuse the existing Ansible playbooks and module lifecycle model under [ansible](ansible) and [scripts](scripts), but remove any hard dependency on the bootserver module.
-   - Make the flow idempotent so reinstalling a node produces the same final state.
-   - Deliverables: one-button bootstrap command, inventory updates, validation steps for a fresh install.
+3. Sprint 2 — Completed: Replace first-boot automation with a local bootstrap flow
+   - Introduced a bootstrap workflow that runs after the node is installed from the image.
+   - Reused existing Ansible playbooks and module lifecycle logic, removing hard dependence on the bootserver module.
+   - Made the flow idempotent so reinstalling a node produces the same final state.
+   - Added a command-node CLI for bootstrap, rebuild, playbook, and environment workflows.
+   - Deliverables: one-button bootstrap command, inventory updates, validation steps for a fresh install, and CLI-based command-node orchestration.
 
 4. Sprint 3 — Migrate infrastructure services to the new path
    - Move core services such as Docker, K3s, networking, logging, NFS, and monitoring onto the new image-plus-bootstrap workflow.

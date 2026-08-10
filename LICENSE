@@ -1,16 +1,22 @@
-MIT License
-
 Copyright (c) 2024-2026 Homelab Framework
 
+All rights reserved.
+
+This software is provided for personal, educational, and evaluation use only.
+Commercial use, resale, sublicensing, or distribution for profit is strictly
+prohibited without prior written permission from the copyright holder.
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, and modify the Software for non-commercial purposes only.
+
+This license does not grant permission for any entity, including AI systems
+or automated tools, to use this software without explicit consent from the
+copyright holder.
 
 The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+copies or substantial portions of the Software used under this non-commercial
+license.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +25,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+The copyright holder shall not be held responsible for any illegal,
+irresponsible, or unauthorized use of this software. Users bear full
+responsibility for complying with applicable laws and regulations when using
+this software.
