@@ -37,6 +37,48 @@ load_dotenv() {
   done < "${env_file}"
 }
 
+save_env_var() {
+  local env_file="${1:-${ROOT_DIR}/.env}"
+  local key="${2:?key required}"
+  local value="${3:-}"
+  local tmp_file
+  local escaped_value
+  local updated=0
+
+  if [[ ! "${key}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+    echo "ERROR: Invalid variable name: ${key}" >&2
+    return 1
+  fi
+
+  if [[ ! -f "${env_file}" ]]; then
+    touch "${env_file}"
+  fi
+
+  escaped_value="${value}"
+  case "${escaped_value}" in
+    *[[:space:]]*|*['"\\\$#`]* )
+      escaped_value="${escaped_value//\"/\\\"}"
+      escaped_value="\"${escaped_value}\""
+      ;;
+  esac
+
+  tmp_file="$(mktemp)"
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    if [[ "${line}" =~ ^[[:space:]]*${key}[[:space:]]*= ]]; then
+      printf '%s=%s\n' "${key}" "${escaped_value}" >> "${tmp_file}"
+      updated=1
+    else
+      printf '%s\n' "${line}" >> "${tmp_file}"
+    fi
+  done < "${env_file}"
+
+  if [[ ${updated} -eq 0 ]]; then
+    printf '%s=%s\n' "${key}" "${escaped_value}" >> "${tmp_file}"
+  fi
+
+  mv "${tmp_file}" "${env_file}"
+}
+
 # Map node key (e.g. pi4_network) to env prefix (PI4_NETWORK).
 node_env_prefix() {
   local node="${1:?node name required}"

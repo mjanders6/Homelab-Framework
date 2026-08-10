@@ -161,8 +161,13 @@ set_env_variable() {
     echo "Variable name cannot be empty."
     return
   fi
+  if ! save_env_var "${ROOT_DIR}/.env" "${key}" "${value}"; then
+    echo "Failed to save variable to ${ROOT_DIR}/.env."
+    return
+  fi
+  export "${key}=${value}"
   EXTRA_VARS+=("-e" "${key}=${value}")
-  echo "Added extra var: ${key}=${value}"
+  echo "Saved ${key}=${value} to ${ROOT_DIR}/.env and added to the current session."
 }
 
 print_current_env() {

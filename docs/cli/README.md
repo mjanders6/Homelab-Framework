@@ -35,7 +35,7 @@ This runs `scripts/cli/homelab-cli.sh` and presents a simple menu for common com
    - Additional extra variables can be supplied via the CLI environment menu.
 
 5) **Set environment variable**
-   - Adds an Ansible extra variable for the current CLI session.
+   - Persists a variable to the repository `.env` file and adds it as an Ansible extra variable for the current CLI session.
    - Example: `-e KEY=value` is appended to the playbook run.
 
 6) **Print current environment**
