@@ -55,12 +55,10 @@ save_env_var() {
   fi
 
   escaped_value="${value}"
-  case "${escaped_value}" in
-    *[[:space:]]*|*['"\\\$#`]* )
-      escaped_value="${escaped_value//\"/\\\"}"
-      escaped_value="\"${escaped_value}\""
-      ;;
-  esac
+  if printf '%s' "${escaped_value}" | grep -qE '[[:space:]">\\$#`]' ; then
+    escaped_value="${escaped_value//\"/\\\"}"
+    escaped_value="\"${escaped_value}\""
+  fi
 
   tmp_file="$(mktemp)"
   while IFS= read -r line || [[ -n "${line}" ]]; do
