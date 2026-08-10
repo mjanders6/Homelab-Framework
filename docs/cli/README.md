@@ -18,25 +18,31 @@ This runs `scripts/cli/homelab-cli.sh` and presents a simple menu for common com
    - Runs the shared bootstrap workflow on the command node.
    - This installs prerequisites and prepares the host for rebuild and automation tasks.
 
-2) **Rebuild a remote role node**
-   - Prompts for a role selection and then executes `scripts/rebuild/rebuild-node.sh` remotely.
-   - Supported roles include `desktop`, `pi5`, `pi4_network`, `pi4_monitor`, and `pi4_backup`.
+2) **Rebuild a remote server node**
+   - Prompts for a hostname selection and then executes `scripts/rebuild/rebuild-node.sh` remotely.
+   - Supported hostnames include `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`.
+   - The selected hostname is mapped to the appropriate role (`pi5`, `pi4_network`, `pi4_monitor`, `pi4_backup`, or `desktop`).
    - You can choose a dry-run mode to print the rebuild role without making changes.
 
-3) **Run Ansible playbook**
+3) **Install a standalone module on a remote node**
+   - Prompts for a module selection and a target hostname.
+   - Supported hostnames include `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`.
+   - The CLI installs the selected module on the remote node using `scripts/lib/modules.sh run install <module>`.
+
+4) **Run Ansible playbook**
    - Prompts for an available playbook and runs it with `ansible-playbook`.
    - Current options are `bootstrap`, `desktop`, and `infrastructure`.
    - Additional extra variables can be supplied via the CLI environment menu.
 
-4) **Set environment variable**
+5) **Set environment variable**
    - Adds an Ansible extra variable for the current CLI session.
    - Example: `-e KEY=value` is appended to the playbook run.
 
-5) **Print current environment**
+6) **Print current environment**
    - Displays the active environment values loaded from `.env` and the network defaults.
    - Helpful for confirming node addresses and network settings before running automation.
 
-6) **Exit**
+7) **Exit**
    - Closes the interactive CLI session.
 
 ## Notes

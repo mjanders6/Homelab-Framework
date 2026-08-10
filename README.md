@@ -30,7 +30,7 @@ Rebuild workflow:
 - `make rebuild-default` — Start the rebuild flow for a fresh node install.
 - `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
 - `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
-- `make cli` — Launch an interactive command-node CLI that can bootstrap the command node, run Ansible playbooks, rebuild roles, and set environment variables.
+- `make cli` — Launch an interactive command-node CLI that can bootstrap the command node, rebuild remote hosts by hostname, install standalone modules on remote nodes, run Ansible playbooks, and set environment variables.
 
 The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
 
@@ -50,5 +50,7 @@ make rebuild-desktop
 ```
 
 This starts the bootstrap flow for a newly installed node and is intended as the first step toward a network-boot-free rebuild experience.
+
+The interactive CLI now supports hostname-based rebuilds for remote hosts such as `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`, as well as standalone module installation on those remote nodes.
 
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).

@@ -85,3 +85,8 @@ Interactive CLI for the command node:
 ```bash
 make cli
 ```
+
+The CLI now supports:
+
+- Hostname-based rebuild selection for remote servers such as `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`.
+- Installing standalone framework modules on remote nodes by hostname.

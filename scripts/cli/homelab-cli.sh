@@ -38,11 +38,12 @@ EOF
 print_menu() {
   echo
   echo "1) Bootstrap this command node"
-  echo "2) Rebuild a remote role node"
-  echo "3) Run Ansible playbook"
-  echo "4) Set environment variable"
-  echo "5) Print current environment"
-  echo "6) Exit"
+  echo "2) Rebuild a remote server node"
+  echo "3) Install a standalone module on a remote node"
+  echo "4) Run Ansible playbook"
+  echo "5) Set environment variable"
+  echo "6) Print current environment"
+  echo "7) Exit"
   echo
 }
 
@@ -52,16 +53,86 @@ bootstrap_node() {
   sudo bash "${ROOT_DIR}/scripts/bootstrap/bootstrap.sh"
 }
 
+node_hostname_to_role() {
+  case "${1}" in
+    rpi3-server) echo 'pi5' ;;
+    rpi2-server) echo 'pi4_network' ;;
+    rpi1-server) echo 'pi4_monitor' ;;
+    rpi0-server) echo 'pi4_backup' ;;
+    tower-server) echo 'desktop' ;;
+    *) echo '' ;;
+  esac
+}
+
+node_role_to_target() {
+  case "${1}" in
+    pi5) echo "${RPI3_SERVER_IP:-rpi3-server}" ;;
+    pi4_network) echo "${RPI2_SERVER_IP:-rpi2-server}" ;;
+    pi4_monitor) echo "${RPI1_SERVER_IP:-rpi1-server}" ;;
+    pi4_backup) echo "${RPI0_SERVER_IP:-rpi0-server}" ;;
+    desktop) echo "tower-server" ;;
+    *) echo '' ;;
+  esac
+}
+
 rebuild_node() {
-  echo "\nSelect a rebuild role:"
-  select ROLE in desktop pi5 pi4_network pi4_monitor pi4_backup; do
-    if [[ -n "${ROLE}" ]]; then
-      echo "\nRebuilding role: ${ROLE}"
+  echo "\nSelect a remote server to rebuild:"
+  select HOSTNAME in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
+    if [[ -n "${HOSTNAME}" ]]; then
+      ROLE="$(node_hostname_to_role "${HOSTNAME}")"
+      if [[ -z "${ROLE}" ]]; then
+        echo "Unknown hostname selected. Try again."
+        continue
+      fi
+      echo "\nRebuilding host: ${HOSTNAME} (role=${ROLE})"
       read -p "Dry run only? [y/N]: " dry
       if [[ "${dry,,}" == "y" ]]; then
         DRY_RUN=true HOMELAB_ROLE="${ROLE}" bash "${ROOT_DIR}/scripts/rebuild/rebuild-node.sh" --print-role
       else
         sudo HOMELAB_ROLE="${ROLE}" bash "${ROOT_DIR}/scripts/rebuild/rebuild-node.sh"
+      fi
+      break
+    else
+      echo "Invalid selection. Try again."
+    fi
+  done
+}
+
+install_module_on_node() {
+  echo "\nAvailable modules:"
+  mapfile -t MODULES < <(bash "${ROOT_DIR}/scripts/lib/modules.sh" list_modules)
+  if [[ ${#MODULES[@]} -eq 0 ]]; then
+    echo "No modules available."
+    return
+  fi
+
+  select MODULE in "${MODULES[@]}"; do
+    if [[ -n "${MODULE}" ]]; then
+      echo "Selected module: ${MODULE}"
+      break
+    else
+      echo "Invalid selection. Try again."
+    fi
+  done
+
+  echo "\nSelect a target host:"
+  select HOSTNAME in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
+    if [[ -n "${HOSTNAME}" ]]; then
+      ROLE="$(node_hostname_to_role "${HOSTNAME}")"
+      if [[ -z "${ROLE}" ]]; then
+        echo "Unknown hostname selected. Try again."
+        continue
+      fi
+      TARGET="$(node_role_to_target "${ROLE}")"
+      if [[ -z "${TARGET}" ]]; then
+        echo "No target address available for ${HOSTNAME}."
+        return
+      fi
+      echo "\nInstalling ${MODULE} on ${HOSTNAME} (${TARGET})..."
+      if [[ "${TARGET}" =~ ^(localhost|127\.0\.0\.1)$ ]]; then
+        sudo bash "${ROOT_DIR}/scripts/lib/modules.sh" run install "${MODULE}"
+      else
+        ssh "${TARGET}" "cd '${ROOT_DIR}' && sudo bash scripts/lib/modules.sh run install '${MODULE}'"
       fi
       break
     else
@@ -118,11 +189,12 @@ main() {
     case "${choice}" in
       1) bootstrap_node ;; 
       2) rebuild_node ;; 
-      3) run_ansible_playbook ;; 
-      4) set_env_variable ;; 
-      5) print_current_env ;; 
-      6) echo "Goodbye."; exit 0 ;; 
-      *) echo "Invalid choice. Enter 1-6." ;; 
+      3) install_module_on_node ;; 
+      4) run_ansible_playbook ;; 
+      5) set_env_variable ;; 
+      6) print_current_env ;; 
+      7) echo "Goodbye."; exit 0 ;; 
+      *) echo "Invalid choice. Enter 1-7." ;; 
     esac
   done
 }
