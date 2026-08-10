@@ -10,6 +10,30 @@ The supported path is now a rebuild-first workflow that avoids the legacy bootse
 - `sudo` access
 - Network connectivity to required package repositories
 
+## Create the `.env` file
+
+The framework reads settings from a `.env` file in the repository root. Copy the example and edit the values for your network and node addresses:
+
+```bash
+cp .env.example .env
+# then edit .env with your editor
+```
+
+Recommended variables (minimum set required):
+
+- `NETWORK_GATEWAY` — your LAN gateway address (e.g. `192.168.1.1`).
+- `NETWORK_NAMESERVER` — DNS nameserver for the network.
+- `NETWORK_PROBE_IP` — optional probe IP used for network checks.
+- `RPI3_SERVER_IP` and `RPI3_SERVER_MAC` — command-node / management host.
+- `RPI2_SERVER_IP` and `RPI2_SERVER_MAC` — networking node.
+- `RPI1_SERVER_IP` and `RPI1_SERVER_MAC` — monitoring node.
+- `RPI0_SERVER_IP` and `RPI0_SERVER_MAC` — backup node.
+
+Notes:
+
+- If required variables are missing when the scripts run, a validation error will be printed and execution will stop. To bypass validation (not recommended), set `SKIP_ENV_VALIDATION=1` in the environment.
+
+
 ## Bootstrap
 
 Use the bootstrap script in `scripts/bootstrap/bootstrap.sh` to install prerequisites and verify the host.

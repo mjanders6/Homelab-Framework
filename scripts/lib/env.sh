@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -45,30 +45,100 @@ node_env_prefix() {
 
 node_mac_from_env() {
   local prefix var_name
-  prefix="$(node_env_prefix "${1:?node name required}")"
-  var_name="${prefix}_MAC"
+  local host_prefix legacy_prefix var_name
+  host_prefix="$(node_host_prefix "${1:?node name required}")"
+  var_name="${host_prefix}_MAC"
+  if [[ -n "${!var_name-}" ]]; then
+    printf '%s\n' "${!var_name}"
+    return 0
+  fi
+  legacy_prefix="$(node_env_prefix "${1}")"
+  var_name="${legacy_prefix}_MAC"
   printf '%s\n' "${!var_name-}"
 }
 
 node_ip_from_env() {
   local prefix var_name
-  prefix="$(node_env_prefix "${1:?node name required}")"
-  var_name="${prefix}_IP"
+  local host_prefix legacy_prefix var_name
+  host_prefix="$(node_host_prefix "${1:?node name required}")"
+  var_name="${host_prefix}_IP"
+  if [[ -n "${!var_name-}" ]]; then
+    printf '%s\n' "${!var_name}"
+    return 0
+  fi
+  legacy_prefix="$(node_env_prefix "${1}")"
+  var_name="${legacy_prefix}_IP"
   printf '%s\n' "${!var_name-}"
 }
 
+# Map node names (pi5, pi4_network, ...) to host-style env prefixes.
+node_host_prefix() {
+  local node="${1:?node name required}"
+  case "${node}" in
+    pi5) echo 'RPI3_SERVER' ;;
+    pi4_network) echo 'RPI2_SERVER' ;;
+    pi4_monitor) echo 'RPI1_SERVER' ;;
+    pi4_backup) echo 'RPI0_SERVER' ;;
+    *) node_env_prefix "${node}" ;;
+  esac
+}
 # Apply shared network defaults after load_dotenv (env / .env win).
 apply_network_defaults() {
-  export NETWORK_GATEWAY="${NETWORK_GATEWAY:-192.168.1.1}"
-  export NETWORK_NAMESERVER="${NETWORK_NAMESERVER:-192.168.1.1}"
+  # Network values are intentionally left unset here so callers must provide
+  # them via the environment or `.env`. No hard-coded IP or MAC defaults.
+  export NETWORK_GATEWAY="${NETWORK_GATEWAY:-}"
+  export NETWORK_NAMESERVER="${NETWORK_NAMESERVER:-}"
   export NETWORK_PREFIX_LENGTH="${NETWORK_PREFIX_LENGTH:-24}"
-  export NETWORK_PROBE_IP="${NETWORK_PROBE_IP:-8.8.8.8}"
-  export PI5_IP="${PI5_IP:-192.168.1.51}"
-  export PI4_NETWORK_IP="${PI4_NETWORK_IP:-192.168.1.52}"
-  export PI4_MONITOR_IP="${PI4_MONITOR_IP:-192.168.1.53}"
-  export PI4_BACKUP_IP="${PI4_BACKUP_IP:-192.168.1.54}"
-  export PI5_MAC="${PI5_MAC:-}"
-  export PI4_NETWORK_MAC="${PI4_NETWORK_MAC:-}"
-  export PI4_MONITOR_MAC="${PI4_MONITOR_MAC:-}"
-  export PI4_BACKUP_MAC="${PI4_BACKUP_MAC:-}"
+  export NETWORK_PROBE_IP="${NETWORK_PROBE_IP:-}"
+
+  # Export host-style RPI*_SERVER_* variables — no legacy PI* fallbacks.
+  export RPI3_SERVER_IP="${RPI3_SERVER_IP:-}"
+  export RPI2_SERVER_IP="${RPI2_SERVER_IP:-}"
+  export RPI1_SERVER_IP="${RPI1_SERVER_IP:-}"
+  export RPI0_SERVER_IP="${RPI0_SERVER_IP:-}"
+  export RPI3_SERVER_MAC="${RPI3_SERVER_MAC:-}"
+  export RPI2_SERVER_MAC="${RPI2_SERVER_MAC:-}"
+  export RPI1_SERVER_MAC="${RPI1_SERVER_MAC:-}"
+  export RPI0_SERVER_MAC="${RPI0_SERVER_MAC:-}"
 }
+
+# Validate presence of required environment variables at runtime.
+# Set SKIP_ENV_VALIDATION=1 in the environment to bypass this check.
+validate_required_env() {
+  if [[ "${SKIP_ENV_VALIDATION:-}" == "1" || "${SKIP_ENV_VALIDATION:-}" == "true" ]]; then
+    return 0
+  fi
+
+  local required=(
+    NETWORK_GATEWAY
+    NETWORK_NAMESERVER
+    NETWORK_PROBE_IP
+    RPI3_SERVER_IP
+    RPI2_SERVER_IP
+    RPI1_SERVER_IP
+    RPI0_SERVER_IP
+    RPI3_SERVER_MAC
+    RPI2_SERVER_MAC
+    RPI1_SERVER_MAC
+    RPI0_SERVER_MAC
+  )
+
+  local missing=()
+  for v in "${required[@]}"; do
+    if [[ -z "${!v:-}" ]]; then
+      missing+=("$v")
+    fi
+  done
+
+  if [[ ${#missing[@]} -ne 0 ]]; then
+    echo "" >&2
+    echo "ERROR: Required environment variables are missing:" >&2
+    for m in "${missing[@]}"; do echo "  - $m" >&2; done
+    echo "" >&2
+    echo "Create a .env file from .env.example or export these variables before running the scripts." >&2
+    echo "See docs/installation/INSTALL.md for guidance." >&2
+    exit 1
+  fi
+}
+
+

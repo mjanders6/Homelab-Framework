@@ -15,17 +15,23 @@ EXTRA_VARS=()
 
 print_header() {
   cat <<'EOF'
-      .-"""-.
-     / -   - \
-    |  .-. .- |
-    |  | | |  |
-    |  | | |  |   .-"""-.
-    |  |_| |_| |  /  _  _ \
-     \  `-'`-' /  |  ( )  |
-      `-.___.-'    \  `-' /
-   HOMELAB FRAMEWORK CLI - COMMAND NODE
-   -------------------------------------
-    A small friendly robot for rebuilds
+    __   __
+	    \ /
+   |[o] [o]|
+     { - }
+       ||
+       ||
+  _____||______
+ ||___    ____||
+ ||}  |  |   {||
+ ||   |  |    ||
+ \\   |  |    //
+  \\  |  |   //
+   __ |__| __
+   []      []
+HOMELAB FRAMEWORK CLI - COMMAND NODE
+-------------------------------------
+A small friendly robot for rebuilds
 EOF
 }
 
@@ -94,10 +100,14 @@ print_current_env() {
   echo "NETWORK_NAMESERVER=${NETWORK_NAMESERVER}"
   echo "NETWORK_PREFIX_LENGTH=${NETWORK_PREFIX_LENGTH}"
   echo "NETWORK_PROBE_IP=${NETWORK_PROBE_IP}"
-  echo "PI5_IP=${PI5_IP}"
-  echo "PI4_NETWORK_IP=${PI4_NETWORK_IP}"
-  echo "PI4_MONITOR_IP=${PI4_MONITOR_IP}"
-  echo "PI4_BACKUP_IP=${PI4_BACKUP_IP}"
+  echo "RPI3_SERVER_IP=${RPI3_SERVER_IP}"
+  echo "RPI3_SERVER_MAC=${RPI3_SERVER_MAC}"
+  echo "RPI2_SERVER_IP=${RPI2_SERVER_IP}"
+  echo "RPI2_SERVER_MAC=${RPI2_SERVER_MAC}"
+  echo "RPI1_SERVER_IP=${RPI1_SERVER_IP}"
+  echo "RPI1_SERVER_MAC=${RPI1_SERVER_MAC}"
+  echo "RPI0_SERVER_IP=${RPI0_SERVER_IP}"
+  echo "RPI0_SERVER_MAC=${RPI0_SERVER_MAC}"
 }
 
 main() {

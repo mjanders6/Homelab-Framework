@@ -8,14 +8,14 @@ homelab_network_prefix_length: 24
 # Env var names for per-node MAC/IP overlays (see .env.example).
 node_env_key_map:
   pi5:
-    mac: PI5_MAC
-    ip: PI5_IP
+    mac: RPI3_SERVER_MAC
+    ip: RPI3_SERVER_IP
   pi4_network:
-    mac: PI4_NETWORK_MAC
-    ip: PI4_NETWORK_IP
+    mac: RPI2_SERVER_MAC
+    ip: RPI2_SERVER_IP
   pi4_monitor:
-    mac: PI4_MONITOR_MAC
-    ip: PI4_MONITOR_IP
+    mac: RPI1_SERVER_MAC
+    ip: RPI1_SERVER_IP
   pi4_backup:
-    mac: PI4_BACKUP_MAC
-    ip: PI4_BACKUP_IP
+    mac: RPI0_SERVER_MAC
+    ip: RPI0_SERVER_IP
