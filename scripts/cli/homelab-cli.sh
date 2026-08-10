@@ -1,8 +1,10 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
+set -o igncr 2>/dev/null || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# SCRIPT_DIR is e.g. <repo>/scripts/cli — go up two levels to reach repo root
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 source "${ROOT_DIR}/scripts/lib/env.sh"
 
 load_dotenv "${ROOT_DIR}/.env"
@@ -13,9 +15,17 @@ EXTRA_VARS=()
 
 print_header() {
   cat <<'EOF'
-========================================
-  Homelab Framework CLI - Command Node
-========================================
+      .-"""-.
+     / -   - \
+    |  .-. .- |
+    |  | | |  |
+    |  | | |  |   .-"""-.
+    |  |_| |_| |  /  _  _ \
+     \  `-'`-' /  |  ( )  |
+      `-.___.-'    \  `-' /
+   HOMELAB FRAMEWORK CLI - COMMAND NODE
+   -------------------------------------
+    A small friendly robot for rebuilds
 EOF
 }
 
@@ -108,3 +118,4 @@ main() {
 }
 
 main "$@"
+
