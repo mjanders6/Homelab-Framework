@@ -32,3 +32,7 @@ This sprint focuses on cleanup, documentation, and recovery readiness.
 - The framework supports rebuilding a node without network booting.
 - The documentation matches the implementation.
 - The rebuild path is simple enough to use repeatedly.
+
+## Status
+
+Sprint 4 — Completed: the legacy network-boot/bootserver path has been retired from the main workflow, documentation has been updated, and rebuild recovery guidance has been added to the repository.

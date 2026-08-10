@@ -143,18 +143,6 @@ make diagnose-k3s
 5. Add `log_debug` checkpoints in the failing script if necessary.
 6. If dependency resolution is wrong, verify `dependencies:` lists the complete chain.
 
-## Example: fix a failing `install-k3s`
-
-1. Confirm `modules/k3s/module.yml` includes `docker` and `network`.
-2. Confirm `modules/docker/install.sh` and `modules/network/install.sh` exist.
-3. Run:
-
-```bash
-bash scripts/lib/modules.sh run install k3s
-```
-
-4. If a dependency action fails, fix that module first.
-
 ## Additional notes
 
 - The framework currently resolves dependencies only for `install`, `configure`, and `verify`.

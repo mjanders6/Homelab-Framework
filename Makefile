@@ -141,6 +141,10 @@ desktop: base ## Setup desktop as the Infrastructure Server for the Home Lab
 	# Server Management:
 	bash $(SCRIPT_DIR)/install/install_webmin.sh
 
+# Alias for renamed host: `tower-server` maps to the `desktop` role
+tower-server: desktop ## Alias target for tower-server (desktop role)
+	@echo "Alias: tower-server -> desktop"
+
 ##############################################################################
 # Rebuild Workflow
 ##############################################################################
@@ -152,6 +156,10 @@ rebuild-default: base ## Start the rebuild flow for a fresh node install
 rebuild-desktop: base ## Rebuild the desktop/infrastructure host
 	@echo "🔧 Starting desktop rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh desktop
+
+# Alias rebuild target for `tower-server` hostname
+rebuild-tower-server: rebuild-desktop ## Rebuild the tower-server (desktop) host
+	@$(MAKE) rebuild-desktop
 
 rebuild-pi5: base ## Rebuild a Raspberry Pi 5 node
 	@echo "🔧 Starting Pi 5 rebuild flow..."

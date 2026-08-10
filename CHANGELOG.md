@@ -1,9 +1,14 @@
 # Changelog
 
+## 2.4.0
+- Completed Sprint 4: removed the legacy network-boot/bootserver path, hardened the rebuild flow, and finalized rebuild-first recovery steps.
+- Cleaned up stale K3s troubleshooting references and finalized Sprint 3 migration work.
+- Bumped the repository version to `2.4.0`.
+
 ## 2.3.0
-- Completed Sprint 2 by implementing the rebuild-first workflow and retiring legacy bootserver/PXE/K3s automation.
-- Added a command-node CLI menu entrypoint for bootstrap, rebuild, playbook, and environment workflows.
-- Updated documentation to reflect the new post-install automation flow and command-node usage.
+ - Completed Sprint 2 by implementing the rebuild-first workflow and retiring legacy bootserver/PXE/K3s automation.
+ - Added a command-node CLI menu entrypoint for bootstrap, rebuild, playbook, and environment workflows.
+ - Updated documentation to reflect the new post-install automation flow and command-node usage.
 
 ## 2.2.0
 - Bumped the framework version for the next release cycle.

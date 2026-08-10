@@ -4,11 +4,11 @@
 
 **Architecture Specification**
 
-Version: **2.0.0**
+Version: **2.4.0**
 
-Codename: **Sprint 2**
+Codename: **Sprint 4**
 
-Status: Draft
+Status: Updated
 
 ```
                      Internet
@@ -47,7 +47,7 @@ This document defines the architectural principles, conventions, and development
 
 The objective of the framework is to provide a fully automated, reproducible Infrastructure-as-Code (IaC) platform capable of rebuilding an entire homelab environment from a fresh Ubuntu Server installation using a single source-controlled repository.
 
-The framework is intentionally moving away from the legacy bootserver and K3s-centric deployment model toward a rebuild-first workflow that starts from a fresh OS install and uses the shared bootstrap and role automation path.
+The framework has completed the migration away from the legacy bootserver and K3s-centric deployment model and now uses a rebuild-first workflow that starts from a fresh OS install and runs shared bootstrap and role automation.
 
 The framework emphasizes:
 
@@ -59,7 +59,7 @@ The framework emphasizes:
 * Idempotency
 * Extensibility
 
-This document serves as the governing specification for all project development, including the migration away from network-boot, bootserver-based provisioning, and older K3s-specific assumptions.
+This document serves as the governing specification for all project development. Legacy network-boot and bootserver-based provisioning have been retired in favor of the image-plus-bootstrap rebuild flow; K3s is no longer a default assumption for typical deployments.
 
 ---
 

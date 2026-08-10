@@ -1,13 +1,13 @@
 ## Plan: Replace network boot with image-based rebuilds
 
-The current framework is centered on a hybrid PXE/cloud-init bootserver flow in [README.md](README.md) and the bootserver module in [modules/bootserver/README.md](modules/bootserver/README.md). To remove that dependency while keeping fast rebuilds, the migration should shift to a local-image and post-install automation model.
+The current framework previously included a hybrid PXE/cloud-init bootserver flow. That legacy path has been retired; the migration shifted to a local-image and post-install automation model to keep fast rebuilds while removing the bootserver dependency.
 
 ### Status snapshot
 
 - Sprint 0 — Completed: established the rebuild-first target architecture and documented the migration away from the bootserver-centric path.
 - Sprint 1 — Completed: implemented the image-based foundation for role-specific rebuilds, including role mapping, artifact packaging, validation checks, and CI coverage.
 - Sprint 2 — Completed: replaced first-boot bootserver automation with a local image + post-install bootstrap flow, added the command-node CLI, and retired legacy bootserver/K3s references.
-- Future work continues the broader migration away from both the bootserver path and the K3s-centric model, with Sprint 3 focused on infrastructure service migration.
+- Sprint 3 — Completed: moved core infrastructure services onto the new image-plus-bootstrap workflow and removed legacy bootserver/K3s module dependencies.
 
 ### Recommended sprint structure
 
