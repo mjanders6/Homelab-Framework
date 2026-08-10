@@ -15,8 +15,8 @@ EXTRA_VARS=()
 
 print_header() {
   cat <<'EOF'
-    __   __
-     \ /
+     __   __
+       \ /
     |[o] [o]|
       { - }
         ||
