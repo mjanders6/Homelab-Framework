@@ -4,7 +4,7 @@ This page helps developers debug module dependency resolution and lifecycle exec
 
 ## Common symptoms
 
-- `make install-k3s` fails before reaching the `k3s` module
+- `make install-<module>` fails before reaching the target module
 - a dependency module is skipped or run in the wrong order
 - `verify` reports missing binaries or inactive services
 - module lifecycle scripts exit unexpectedly
@@ -16,10 +16,10 @@ Each module must declare dependencies in `modules/<module>/module.yml`.
 Example:
 
 ```yaml
-name: k3s
-description: Lightweight Kubernetes cluster deployment.
+name: my-service
+description: Example service deployment.
 version: 1.0.0
-category: cluster
+category: service
 capabilities:
   - install
   - configure
@@ -72,7 +72,7 @@ The module helper resolves dependencies before executing `install`, `configure`,
 To inspect the resolved order manually, use:
 
 ```bash
-bash scripts/lib/modules.sh run install k3s
+bash scripts/lib/modules.sh run install <module>
 ```
 
 If there is a dependency cycle, the loader will report:

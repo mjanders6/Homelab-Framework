@@ -93,26 +93,21 @@ case "${ROLE}" in
     ;;
   pi5)
     run_script "${ROOT_DIR}/scripts/install/install_docker.sh"
-    run_script "${ROOT_DIR}/scripts/install/install_cockpit.sh"
     run_script "${ROOT_DIR}/scripts/install/install_ansible.sh"
     run_script "${ROOT_DIR}/scripts/configure/setup_ansible_directories.sh"
     ;;
   pi4_network)
     run_script "${ROOT_DIR}/scripts/install/install_docker.sh"
     run_script "${ROOT_DIR}/scripts/install/install_tailscale.sh"
-    run_script "${ROOT_DIR}/scripts/install/install_cockpit.sh"
     ;;
   pi4_monitor)
     run_script "${ROOT_DIR}/scripts/install/install_docker.sh"
     run_script "${ROOT_DIR}/scripts/install/install_node_exporter.sh"
-    run_script "${ROOT_DIR}/scripts/install/install_cockpit.sh"
     ;;
   pi4_backup)
     run_script "${ROOT_DIR}/scripts/install/install_docker.sh"
-    run_script "${ROOT_DIR}/scripts/install/install_restic.sh"
     run_script "${ROOT_DIR}/scripts/install/install_samba.sh"
     run_script "${ROOT_DIR}/scripts/configure/configure_samba_shares.sh"
-    run_script "${ROOT_DIR}/scripts/install/install_cockpit.sh"
     ;;
   default)
     echo "No additional role-specific setup defined for default."

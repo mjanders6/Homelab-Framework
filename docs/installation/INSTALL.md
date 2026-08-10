@@ -41,23 +41,23 @@ make modules
 Install a module and its declared dependencies:
 
 ```bash
-make install-k3s
-```
-
-Install only module dependencies for `k3s`:
-
-```bash
-make install-dependencies-k3s
+make install-<module>
 ```
 
 Verify a module:
 
 ```bash
-make verify-k3s
+make verify-<module>
 ```
 
 Get module status:
 
 ```bash
 make module-status
+```
+
+Interactive CLI for the command node:
+
+```bash
+make cli
 ```

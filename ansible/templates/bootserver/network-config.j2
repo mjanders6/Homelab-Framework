@@ -1,9 +1,0 @@
-version: 2
-ethernets:
-  eth0:
-    dhcp4: false
-    addresses:
-      - {{ node_static_ip }}/{{ node_prefix_length | default(24) }}
-    gateway4: {{ node_gateway }}
-    nameservers:
-      addresses: {{ node_nameservers | to_json }}

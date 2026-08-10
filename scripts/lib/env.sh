@@ -37,7 +37,7 @@ load_dotenv() {
   done < "${env_file}"
 }
 
-# Map bootserver node key (e.g. pi4_network) to env prefix (PI4_NETWORK).
+# Map node key (e.g. pi4_network) to env prefix (PI4_NETWORK).
 node_env_prefix() {
   local node="${1:?node name required}"
   printf '%s\n' "${node}" | tr '[:lower:]' '[:upper:]'
