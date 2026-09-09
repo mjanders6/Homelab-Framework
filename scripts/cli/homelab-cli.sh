@@ -146,7 +146,7 @@ run_ansible_playbook() {
   select playbook in bootstrap desktop infrastructure; do
     if [[ -n "${playbook}" ]]; then
       echo "\nRunning ansible-playbook for ${playbook}..."
-      ansible-playbook -i localhost, "${ROOT_DIR}/ansible/playbooks/${playbook}.yml" "${EXTRA_VARS[@]}"
+      ansible-playbook -i "${ROOT_DIR}/ansible/inventories/lab/hosts.yml" "${ROOT_DIR}/ansible/playbooks/${playbook}.yml" "${EXTRA_VARS[@]}"
       break
     else
       echo "Invalid selection. Try again."
