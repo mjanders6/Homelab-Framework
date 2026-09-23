@@ -27,6 +27,7 @@ Key directories:
 
 Rebuild workflow:
 
+- `sudo make install ROLE=pi5` — Run the complete one-command install flow for a node role.
 - `make rebuild-default` — Start the rebuild flow for a fresh node install.
 - `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
 - `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
@@ -43,6 +44,9 @@ Current milestone: Sprint 4 is complete. The repository includes versioned role 
 A first rebuild entrypoint is now available for fresh OS installs:
 
 ```bash
+sudo make install ROLE=pi5
+# or use another role: desktop, pi4_network, pi4_monitor, pi4_backup
+
 make rebuild-default
 # or
 make rebuild-pi5

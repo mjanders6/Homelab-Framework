@@ -4,7 +4,7 @@
 
 **Architecture Specification**
 
-Version: **2.4.0**
+Version: **2.5.0**
 
 Codename: **Sprint 4**
 
@@ -156,6 +156,39 @@ Manual procedures are temporary.
 If a procedure is repeated more than once, it should become automated.
 
 The preferred automation path is a rebuild-first experience that does not depend on a bootserver or PXE flow, and that does not rely on K3s as the default control-plane assumption for every deployment.
+
+---
+
+## 2.6 Role Profiles and Software Ownership
+
+The supported installation workflow is role-driven. The authoritative mapping from a role to the software and configuration it installs is the role-specific case statement in `scripts/rebuild/rebuild-node.sh`. The `Makefile` provides command aliases, but it is not the source of truth for role contents.
+
+Every role runs the shared foundation first:
+
+1. `scripts/bootstrap/bootstrap.sh` installs host prerequisites and verifies tools.
+2. `scripts/install/common_packages.sh` installs common packages.
+3. `scripts/configure/setup_directories.sh` creates shared directories.
+
+Role-specific software is then applied as follows:
+
+| Role | Software and configuration |
+| --- | --- |
+| `desktop` | Samba, Samba share configuration, and Webmin |
+| `pi5` | Docker, Ansible, and Ansible directory configuration |
+| `pi4_network` | Docker and Tailscale |
+| `pi4_monitor` | Docker and Node Exporter |
+| `pi4_backup` | Docker, Samba, and Samba share configuration |
+| `default` | Shared foundation only |
+
+Each installer is kept as a focused script under `scripts/install/`, such as `install_docker.sh`, `install_samba.sh`, `install_tailscale.sh`, `install_node_exporter.sh`, `install_webmin.sh`, and `install_ansible.sh`. To add software to a role, add or reuse an installer script and invoke it in the matching role block in `rebuild-node.sh`.
+
+Role software, host assignment, and base image selection are separate concerns:
+
+* `RPI*_SERVER_ROLE` and `TOWER_SERVER_ROLE` in `.env` assign a role to a host.
+* `scripts/rebuild/rebuild-node.sh` defines the software installed for that role.
+* `scripts/rebuild/role-image-map.sh` selects the base image for that role; it does not install software.
+
+Role assignments should be unique. After changing an assignment, run `sudo make install ROLE=<role>` on the affected host so the host converges to its new function.
 
 ---
 

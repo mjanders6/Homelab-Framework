@@ -63,6 +63,11 @@ $(foreach action,$(MODULE_ACTIONS),$(eval $(call MODULE_ACTION_TEMPLATE,$(action
 
 all: pi5 pi4_network pi4_monitor pi4_backup desktop ## Run all node setups
 
+ROLE ?= default
+
+install: ## Install and configure one node role through the rebuild workflow (ROLE=pi5)
+	@bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh $(ROLE)
+
 rebuild-%: ## Rebuild a node from a fresh OS install using the bootstrap flow
 	@bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh $*
 
@@ -149,11 +154,11 @@ tower-server: desktop ## Alias target for tower-server (desktop role)
 # Rebuild Workflow
 ##############################################################################
 
-rebuild-default: base ## Start the rebuild flow for a fresh node install
+rebuild-default: ## Start the rebuild flow for a fresh node install
 	@echo "🔧 Starting default rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh default
 
-rebuild-desktop: base ## Rebuild the desktop/infrastructure host
+rebuild-desktop: ## Rebuild the desktop/infrastructure host
 	@echo "🔧 Starting desktop rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh desktop
 
@@ -161,19 +166,19 @@ rebuild-desktop: base ## Rebuild the desktop/infrastructure host
 rebuild-tower-server: rebuild-desktop ## Rebuild the tower-server (desktop) host
 	@$(MAKE) rebuild-desktop
 
-rebuild-pi5: base ## Rebuild a Raspberry Pi 5 node
+rebuild-pi5: ## Rebuild a Raspberry Pi 5 node
 	@echo "🔧 Starting Pi 5 rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi5
 
-rebuild-pi4-network: base ## Rebuild a Raspberry Pi 4 networking node
+rebuild-pi4-network: ## Rebuild a Raspberry Pi 4 networking node
 	@echo "🔧 Starting Pi 4 networking rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_network
 
-rebuild-pi4-monitor: base ## Rebuild a Raspberry Pi 4 monitoring node
+rebuild-pi4-monitor: ## Rebuild a Raspberry Pi 4 monitoring node
 	@echo "🔧 Starting Pi 4 monitoring rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_monitor
 
-rebuild-pi4-backup: base ## Rebuild a Raspberry Pi 4 backup node
+rebuild-pi4-backup: ## Rebuild a Raspberry Pi 4 backup node
 	@echo "🔧 Starting Pi 4 backup rebuild flow..."
 	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_backup
 

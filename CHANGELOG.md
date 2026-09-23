@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.0
+- Added configurable host role assignments through `*_SERVER_ROLE` variables in `.env`.
+- Added a canonical `make install ROLE=<role>` workflow for fresh installs and reassignment.
+- Documented role software ownership in the architecture and installation guides.
+
 ## 2.4.0
 - Completed Sprint 4: removed the legacy network-boot/bootserver path, hardened the rebuild flow, and finalized rebuild-first recovery steps.
 - Cleaned up stale K3s troubleshooting references and finalized Sprint 3 migration work.

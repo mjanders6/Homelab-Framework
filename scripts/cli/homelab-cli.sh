@@ -55,24 +55,33 @@ bootstrap_node() {
 
 node_hostname_to_role() {
   case "${1}" in
-    rpi3-server) echo 'pi5' ;;
-    rpi2-server) echo 'pi4_network' ;;
-    rpi1-server) echo 'pi4_monitor' ;;
-    rpi0-server) echo 'pi4_backup' ;;
-    tower-server) echo 'desktop' ;;
+    rpi3-server) echo "${RPI3_SERVER_ROLE}" ;;
+    rpi2-server) echo "${RPI2_SERVER_ROLE}" ;;
+    rpi1-server) echo "${RPI1_SERVER_ROLE}" ;;
+    rpi0-server) echo "${RPI0_SERVER_ROLE}" ;;
+    tower-server) echo "${TOWER_SERVER_ROLE}" ;;
     *) echo '' ;;
   esac
 }
 
 node_role_to_target() {
-  case "${1}" in
-    pi5) echo "${RPI3_SERVER_IP:-rpi3-server}" ;;
-    pi4_network) echo "${RPI2_SERVER_IP:-rpi2-server}" ;;
-    pi4_monitor) echo "${RPI1_SERVER_IP:-rpi1-server}" ;;
-    pi4_backup) echo "${RPI0_SERVER_IP:-rpi0-server}" ;;
-    desktop) echo "tower-server" ;;
-    *) echo '' ;;
-  esac
+  local role="${1}"
+  local hostname assigned_role
+  for hostname in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
+    assigned_role="$(node_hostname_to_role "${hostname}")"
+    if [[ "${assigned_role}" != "${role}" ]]; then
+      continue
+    fi
+    case "${hostname}" in
+      rpi3-server) echo "${RPI3_SERVER_IP:-rpi3-server}" ;;
+      rpi2-server) echo "${RPI2_SERVER_IP:-rpi2-server}" ;;
+      rpi1-server) echo "${RPI1_SERVER_IP:-rpi1-server}" ;;
+      rpi0-server) echo "${RPI0_SERVER_IP:-rpi0-server}" ;;
+      tower-server) echo "${TOWER_SERVER_IP:-tower-server}" ;;
+    esac
+    return 0
+  done
+  echo ''
 }
 
 rebuild_node() {

@@ -140,6 +140,12 @@ apply_network_defaults() {
   export RPI2_SERVER_MAC="${RPI2_SERVER_MAC:-}"
   export RPI1_SERVER_MAC="${RPI1_SERVER_MAC:-}"
   export RPI0_SERVER_MAC="${RPI0_SERVER_MAC:-}"
+  export RPI3_SERVER_ROLE="${RPI3_SERVER_ROLE:-pi5}"
+  export RPI2_SERVER_ROLE="${RPI2_SERVER_ROLE:-pi4_network}"
+  export RPI1_SERVER_ROLE="${RPI1_SERVER_ROLE:-pi4_monitor}"
+  export RPI0_SERVER_ROLE="${RPI0_SERVER_ROLE:-pi4_backup}"
+  export TOWER_SERVER_IP="${TOWER_SERVER_IP:-}"
+  export TOWER_SERVER_ROLE="${TOWER_SERVER_ROLE:-desktop}"
 }
 
 # Validate presence of required environment variables at runtime.
