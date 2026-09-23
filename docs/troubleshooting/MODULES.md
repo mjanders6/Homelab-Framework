@@ -126,13 +126,13 @@ This is useful when `make` masking hides the underlying failure.
 The Makefile exposes convenience targets for common module diagnostics:
 
 ```bash
-make deps-k3s
-make diagnose-k3s
+make deps-docker
+make diagnose-docker
 ```
 
-`make deps-k3s` prints the resolved dependency execution order.
+`make deps-docker` prints the resolved dependency execution order.
 
-`make diagnose-k3s` prints the module manifest, dependency order, and lifecycle script status.
+`make diagnose-docker` prints the module manifest, dependency order, and lifecycle script status.
 
 ## Typical resolution steps
 

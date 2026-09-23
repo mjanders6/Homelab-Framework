@@ -8,7 +8,7 @@ rm -rf "${WORK_DIR}"
 mkdir -p "${WORK_DIR}"
 
 printf 'fake ubuntu base image\n' > "${WORK_DIR}/base-image.img"
-printf '9b8c6e4c0a5f0f9a4d1f0d4e4c7a2b8f5d5e3b0a4f4a8d8d4b2c5f6a8a0d7c0a1\n' > "${WORK_DIR}/base-image.img.sha256"
+printf '415603cf1c3cf535fe89eead88c83c0fbf6f7e3fd32873d63b0538686f309142\n' > "${WORK_DIR}/base-image.img.sha256"
 
 bash "${ROOT_DIR}/scripts/images/build-role-image.sh" pi5 2.2.0 --output-root "${WORK_DIR}/images" --base-image-source "${WORK_DIR}/base-image.img" --checksum-file "${WORK_DIR}/base-image.img.sha256"
 

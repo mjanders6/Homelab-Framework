@@ -52,6 +52,16 @@ sudo bash scripts/lib/modules.sh run install network
 
 For rebuild-based setup, start with the bootstrap flow and then run a rebuild target such as `make rebuild-pi5` or `make rebuild-desktop`. This is the recommended path for new installs and replaces the older bootserver-based and K3s-first provisioning flow.
 
+## Recovery after reinstall
+
+To return a node to service after reinstalling it from an approved local image:
+
+1. Confirm network access and SSH connectivity from the command node.
+2. Run `sudo bash scripts/bootstrap/bootstrap.sh` on the node.
+3. Run the matching role target, such as `make rebuild-pi5` or `make rebuild-desktop`.
+4. Check `make module-status` and run the relevant `make verify-<module>` targets.
+5. Re-run the role target after an interrupted step; the bootstrap and module lifecycle scripts are intended to be idempotent.
+
 ## Module installation
 
 The framework exposes `make` targets for modules and module helpers.

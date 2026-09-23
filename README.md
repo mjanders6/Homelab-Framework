@@ -34,9 +34,9 @@ Rebuild workflow:
 
 The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
 
-The repository is also moving away from the legacy bootserver and K3s-centric approach, with the rebuild-first path becoming the primary supported model.
+The legacy bootserver, PXE, and K3s-centric paths are retired from the supported workflow. Rebuild-first automation is now the primary model.
 
-Current milestone: Sprint 1 is complete. The repository now includes a versioned role-image workflow, validation guidance, smoke tests, and CI coverage for the image build path.
+Current milestone: Sprint 4 is complete. The repository includes versioned role images, post-install bootstrap automation, recovery guidance, and smoke tests for the rebuild path.
 
 ## Rebuild workflow
 
@@ -49,8 +49,18 @@ make rebuild-pi5
 make rebuild-desktop
 ```
 
-This starts the bootstrap flow for a newly installed node and is intended as the first step toward a network-boot-free rebuild experience.
+This starts the bootstrap flow for a newly installed node and is the supported network-boot-free rebuild experience.
 
 The interactive CLI now supports hostname-based rebuilds for remote hosts such as `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`, as well as standalone module installation on those remote nodes.
 
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Recovery after reinstall
+
+After reinstalling a node from an approved local image:
+
+1. Confirm the node has network access and SSH connectivity from the command node.
+2. Run `sudo bash scripts/bootstrap/bootstrap.sh` on the node.
+3. Run the matching role target, such as `make rebuild-pi5` or `make rebuild-desktop`.
+4. Run `make module-status` and the relevant `make verify-<module>` targets.
+5. Re-run the same rebuild target if a step was interrupted; the workflow is designed to converge on the same state.

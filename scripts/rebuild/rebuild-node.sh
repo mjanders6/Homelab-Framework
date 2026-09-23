@@ -16,19 +16,18 @@ if [[ "${ROLE}" == "--print-role" ]]; then
   ROLE="${HOMELAB_ROLE:-default}"
 fi
 
+if [[ "${PRINT_ROLE}" == "true" ]]; then
+  echo "${ROLE}"
+  exit 0
+fi
+
 if [[ $(id -u) -ne 0 ]]; then
-  if [[ "${DRY_RUN}" =~ ^(yes|true|1)$ ]] || [[ "${PRINT_ROLE}" == "true" ]]; then
+  if [[ "${DRY_RUN}" =~ ^(yes|true|1)$ ]]; then
     echo "[DRY-RUN] Running as non-root; skipping privilege check."
   else
     echo "[ERROR] rebuild-node.sh must be run as root or with sudo"
     exit 1
   fi
-fi
-
-
-if [[ "${ROLE}" == "--print-role" ]]; then
-  PRINT_ROLE="true"
-  ROLE="${HOMELAB_ROLE:-default}"
 fi
 
 run_script() {
@@ -68,11 +67,6 @@ case "${ROLE}" in
     exit 1
     ;;
 esac
-
-if [[ "${PRINT_ROLE}" == "true" ]]; then
-  echo "${ROLE}"
-  exit 0
-fi
 
 IMAGE_NAME="$(bash "${ROLE_IMAGE_MAP_SCRIPT}" "${ROLE}")"
 echo "Resolved image for role ${ROLE}: ${IMAGE_NAME}"
