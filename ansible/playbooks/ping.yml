@@ -1,0 +1,8 @@
+---
+# Verify connectivity and privilege escalation. Target with --limit <host>.
+- name: Ping hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping
+      ansible.builtin.ping:

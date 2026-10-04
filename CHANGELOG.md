@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.0
+- Reset the project plan: removed the sprint outline and per-sprint docs.
+- Hosts no longer have dedicated roles; inventory uses one `lab` group.
+- CLI can run Ansible playbooks against a chosen host: `run <playbook> --host <host>`.
+- Replaced stub playbooks with generic `ping`, `bootstrap`, and `update` playbooks.
+- Makefile: added `run`, `hosts`, `playbooks` targets; removed role/rebuild/image targets (`install ROLE=`, `rebuild-*`, `pi5`, `desktop`, etc.).
+
 ## 2.5.0
 - Added configurable host role assignments through `*_SERVER_ROLE` variables in `.env`.
 - Added a canonical `make install ROLE=<role>` workflow for fresh installs and reassignment.
@@ -36,3 +43,6 @@
 
 ## 1.0.0 Foundation
 - Initial framework.
+
+
+

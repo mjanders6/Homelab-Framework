@@ -1,3 +1,12 @@
 ---
-- hosts: localhost
-  tasks: []
+# Baseline packages for any host. Target with --limit <host>.
+- name: Bootstrap hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Install common packages
+      ansible.builtin.apt:
+        name: [git, curl, ca-certificates, rsync]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600

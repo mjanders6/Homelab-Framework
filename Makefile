@@ -58,18 +58,22 @@ endef
 $(foreach action,$(MODULE_ACTIONS),$(eval $(call MODULE_ACTION_TEMPLATE,$(action))))
 
 ##############################################################################
-# Full Deployment
+# Ansible runs (v3.0.0): any playbook against any host
 ##############################################################################
 
-all: pi5 pi4_network pi4_monitor pi4_backup desktop ## Run all node setups
+HOST ?=
+PLAYBOOK ?=
+CHECK ?=
 
-ROLE ?= default
+run: ## Run an Ansible playbook on a host (make run PLAYBOOK=bootstrap HOST=rpi1 [CHECK=1])
+	@test -n "$(PLAYBOOK)" -a -n "$(HOST)" || { echo "Usage: make run PLAYBOOK=<playbook> HOST=<host|group|all> [CHECK=1]"; exit 1; }
+	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh run "$(PLAYBOOK)" --host "$(HOST)" $(if $(CHECK),--check)
 
-install: ## Install and configure one node role through the rebuild workflow (ROLE=pi5)
-	@bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh $(ROLE)
+hosts: ## List inventory hosts
+	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh hosts
 
-rebuild-%: ## Rebuild a node from a fresh OS install using the bootstrap flow
-	@bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh $*
+playbooks: ## List available playbooks
+	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh playbooks
 
 ##############################################################################
 # Base Setup
@@ -81,109 +85,6 @@ base: ## Install common packages/directories
 
 	@echo "🔧 Creating common directories..."
 	bash $(SCRIPT_DIR)/configure/setup_directories.sh
-
-##############################################################################
-# Raspberry Pi 5
-##############################################################################
-
-pi5: base ## Setup Raspberry Pi 5 application node
-	@echo "🔧 Setting up Raspberry Pi 5..."
-
-	bash $(SCRIPT_DIR)/install/install_docker.sh
-	bash $(SCRIPT_DIR)/install/install_ansible.sh
-	bash $(SCRIPT_DIR)/configure/setup_ansible_directories.sh
-
-##############################################################################
-# Raspberry Pi 4 — Networking
-##############################################################################
-
-pi4_network: base ## Setup Raspberry Pi 4 networking node
-	@echo "🔧 Setting up Raspberry Pi 4 networking node..."
-
-	bash $(SCRIPT_DIR)/install/install_docker.sh
-	bash $(SCRIPT_DIR)/install/install_tailscale.sh
-
-	# Optional:
-	# bash $(SCRIPT_DIR)/install/install_pihole.sh
-
-##############################################################################
-# Raspberry Pi 4 — Monitoring
-##############################################################################
-
-pi4_monitor: base ## Setup Raspberry Pi 4 monitoring node
-	@echo "🔧 Setting up Raspberry Pi 4 monitoring node..."
-
-	bash $(SCRIPT_DIR)/install/install_docker.sh
-	bash $(SCRIPT_DIR)/install/install_node_exporter.sh
-
-##############################################################################
-# Raspberry Pi 4 — Backup Node
-##############################################################################
-
-pi4_backup: base ## Setup Raspberry Pi 4 backup node
-	@echo "🔧 Setting up Raspberry Pi 4 backup node..."
-
-	bash $(SCRIPT_DIR)/install/install_docker.sh
-
-	# Samba
-	bash $(SCRIPT_DIR)/install/install_samba.sh
-	bash $(SCRIPT_DIR)/configure/configure_samba_shares.sh
-
-	# Optional:
-	# bash $(SCRIPT_DIR)/install/install_webmin.sh
-
-##############################################################################
-# Desktop: This is the Infrastructure Server for the Home Lab
-##############################################################################
-
-desktop: base ## Setup desktop as the Infrastructure Server for the Home Lab
-	@echo "🔧 Setting up desktop storage/media node..."
-
-	# Samba
-	bash $(SCRIPT_DIR)/install/install_samba.sh
-	bash $(SCRIPT_DIR)/configure/configure_samba_shares.sh
-
-	# Server Management:
-	bash $(SCRIPT_DIR)/install/install_webmin.sh
-
-# Alias for renamed host: `tower-server` maps to the `desktop` role
-tower-server: desktop ## Alias target for tower-server (desktop role)
-	@echo "Alias: tower-server -> desktop"
-
-##############################################################################
-# Rebuild Workflow
-##############################################################################
-
-rebuild-default: ## Start the rebuild flow for a fresh node install
-	@echo "🔧 Starting default rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh default
-
-rebuild-desktop: ## Rebuild the desktop/infrastructure host
-	@echo "🔧 Starting desktop rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh desktop
-
-# Alias rebuild target for `tower-server` hostname
-rebuild-tower-server: rebuild-desktop ## Rebuild the tower-server (desktop) host
-	@$(MAKE) rebuild-desktop
-
-rebuild-pi5: ## Rebuild a Raspberry Pi 5 node
-	@echo "🔧 Starting Pi 5 rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi5
-
-rebuild-pi4-network: ## Rebuild a Raspberry Pi 4 networking node
-	@echo "🔧 Starting Pi 4 networking rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_network
-
-rebuild-pi4-monitor: ## Rebuild a Raspberry Pi 4 monitoring node
-	@echo "🔧 Starting Pi 4 monitoring rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_monitor
-
-rebuild-pi4-backup: ## Rebuild a Raspberry Pi 4 backup node
-	@echo "🔧 Starting Pi 4 backup rebuild flow..."
-	bash $(SCRIPT_DIR)/rebuild/rebuild-node.sh pi4_backup
-
-image-%: ## Build a role-specific image artifact for Sprint 1 testing
-	@bash $(SCRIPT_DIR)/images/build-role-image.sh $* $(VERSION)
 
 ##############################################################################
 # Individual Services
@@ -256,13 +157,10 @@ clean: ## Remove temporary files
 
 .PHONY: \
 	help \
-	all \
 	base \
-	pi5 \
-	pi4_network \
-	pi4_monitor \
-	pi4_backup \
-	desktop \
+	run \
+	hosts \
+	playbooks \
 	docker \
 	tailscale \
 	samba \

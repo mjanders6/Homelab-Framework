@@ -25,46 +25,20 @@ Key directories:
 - `tests/` — Unit, integration, and smoke test scaffolding
 - `configs/` — User-editable configuration templates
 
-Rebuild workflow:
+CLI workflow (v3.0.0):
 
-- `sudo make install ROLE=pi5` — Run the complete one-command install flow for a node role.
-- `make rebuild-default` — Start the rebuild flow for a fresh node install.
-- `make rebuild-pi5` — Rebuild a Pi 5 node using the bootstrap and role-specific setup flow.
-- `make rebuild-desktop` — Rebuild the desktop/infrastructure host using the same path.
-- `make cli` — Launch an interactive command-node CLI that can bootstrap the command node, rebuild remote hosts by hostname, install standalone modules on remote nodes, run Ansible playbooks, and set environment variables.
+- `make cli` - Launch the interactive command-node CLI.
+- `make run PLAYBOOK=bootstrap HOST=rpi1 [CHECK=1]` - Run a playbook on a host; also `make hosts` and `make playbooks`.
+- `scripts/cli/homelab-cli.sh run <playbook> --host <host>` - Run an Ansible playbook against any host. No host is tied to a role.
 
-The supported rebuild workflow now starts from a fresh OS install and uses the framework bootstrap plus role-specific automation instead of a network boot environment.
-
-The legacy bootserver, PXE, and K3s-centric paths are retired from the supported workflow. Rebuild-first automation is now the primary model.
-
-Current milestone: Sprint 4 is complete. The repository includes versioned role images, post-install bootstrap automation, recovery guidance, and smoke tests for the rebuild path.
-
-## Rebuild workflow
-
-A first rebuild entrypoint is now available for fresh OS installs:
-
-```bash
-sudo make install ROLE=pi5
-# or use another role: desktop, pi4_network, pi4_monitor, pi4_backup
-
-make rebuild-default
-# or
-make rebuild-pi5
-make rebuild-desktop
-```
-
-This starts the bootstrap flow for a newly installed node and is the supported network-boot-free rebuild experience.
-
-The interactive CLI now supports hostname-based rebuilds for remote hosts such as `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`, as well as standalone module installation on those remote nodes.
+See [docs/cli/README.md](docs/cli/README.md). The legacy role-based rebuild scripts remain in `scripts/rebuild` but are no longer part of the supported CLI.
 
 For full architecture and project standards, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Recovery after reinstall
 
-After reinstalling a node from an approved local image:
+1. Confirm SSH access from the command node.
+2. Run `scripts/cli/homelab-cli.sh run bootstrap --host <host>`
+3. Run any further playbooks for that host.
 
-1. Confirm the node has network access and SSH connectivity from the command node.
-2. Run `sudo bash scripts/bootstrap/bootstrap.sh` on the node.
-3. Run the matching role target, such as `make rebuild-pi5` or `make rebuild-desktop`.
-4. Run `make module-status` and the relevant `make verify-<module>` targets.
-5. Re-run the same rebuild target if a step was interrupted; the workflow is designed to converge on the same state.
+

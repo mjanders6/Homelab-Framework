@@ -1,52 +1,33 @@
 # Homelab Framework CLI
 
-This page describes the new command-node CLI entrypoint for the Homelab Framework.
+Command-node CLI for running Ansible against any host in the inventory. Hosts have no dedicated roles; the playbook you choose defines what happens.
 
-## Launching the CLI
-
-Start the interactive CLI from the repository root:
+## Usage
 
 ```bash
-make cli
+scripts/cli/homelab-cli.sh run <playbook> --host <host> [--check] [-e key=value]
+scripts/cli/homelab-cli.sh hosts        # list inventory hosts
+scripts/cli/homelab-cli.sh playbooks    # list playbooks in ansible/playbooks
+scripts/cli/homelab-cli.sh bootstrap    # bootstrap this command node
+make cli                                # interactive menu
 ```
 
-This runs `scripts/cli/homelab-cli.sh` and presents a simple menu for common command-node operations.
+Example:
 
-## Menu options
+```bash
+scripts/cli/homelab-cli.sh run bootstrap --host rpi1
+scripts/cli/homelab-cli.sh run update --host all --check
+```
 
-1) **Bootstrap this command node**
-   - Runs the shared bootstrap workflow on the command node.
-   - This installs prerequisites and prepares the host for rebuild and automation tasks.
+`--host` accepts an inventory host, a group (`lab`), or `all`. It is passed to `ansible-playbook --limit`. Arguments after `--` go straight to `ansible-playbook`.
 
-2) **Rebuild a remote server node**
-   - Prompts for a hostname selection and then executes `scripts/rebuild/rebuild-node.sh` remotely.
-   - Supported hostnames include `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`.
-   - The selected hostname is mapped to the appropriate role (`pi5`, `pi4_network`, `pi4_monitor`, `pi4_backup`, or `desktop`).
-   - You can choose a dry-run mode to print the rebuild role without making changes.
+## Adding hosts and playbooks
 
-3) **Install a standalone module on a remote node**
-   - Prompts for a module selection and a target hostname.
-   - Supported hostnames include `rpi3-server`, `rpi2-server`, `rpi1-server`, `rpi0-server`, and `tower-server`.
-   - The CLI installs the selected module on the remote node using `scripts/lib/modules.sh run install <module>`.
+- Add hosts to `ansible/inventories/lab/hosts.yml` under the `lab` group.
+- Add a playbook as `ansible/playbooks/<name>.yml` with `hosts: all`; it is picked up automatically.
 
-4) **Run Ansible playbook**
-   - Prompts for an available playbook and runs it with `ansible-playbook`.
-   - Current options are `bootstrap`, `desktop`, and `infrastructure`.
-   - Additional extra variables can be supplied via the CLI environment menu.
+Included playbooks: `ping`, `bootstrap`, `update`.
 
-5) **Set environment variable**
-   - Persists a variable to the repository `.env` file and adds it as an Ansible extra variable for the current CLI session.
-   - Example: `-e KEY=value` is appended to the playbook run.
+## Environment
 
-6) **Print current environment**
-   - Displays the active environment values loaded from `.env` and the network defaults.
-   - Helpful for confirming node addresses and network settings before running automation.
-
-7) **Exit**
-   - Closes the interactive CLI session.
-
-## Notes
-
-- The CLI is intended for the command-node / management host, where the framework can orchestrate rebuilds and bootstrap workflows.
-- Environment defaults are loaded from `.env` and `scripts/lib/env.sh`.
-- This interactive menu replaces older network boot and PXE-based command-node workflows with a simpler rebuild-first experience.
+Defaults are loaded from `.env` and `scripts/lib/env.sh`. The menu can persist variables to `.env` and pass them as extra vars for the session.

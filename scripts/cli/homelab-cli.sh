@@ -3,215 +3,191 @@ set -euo pipefail
 set -o igncr 2>/dev/null || true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# SCRIPT_DIR is e.g. <repo>/scripts/cli — go up two levels to reach repo root
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 source "${ROOT_DIR}/scripts/lib/env.sh"
 
 load_dotenv "${ROOT_DIR}/.env"
 apply_network_defaults
 
-COMMAND_NODE_ROLE="pi5"
+INVENTORY="${ROOT_DIR}/ansible/inventories/lab/hosts.yml"
+PLAYBOOK_DIR="${ROOT_DIR}/ansible/playbooks"
 EXTRA_VARS=()
 
-print_header() {
+usage() {
   cat <<'EOF'
-     __   __
-       \ /
-    |[o] [o]|
-      { - }
-        ||
-        ||
-   _____||______
-  ||___    ____||
-  ||}  |  |   {||
-  ||   |  |    ||
-  \\   |  |    //
-   \\  |  |   //
-    __ |__| __
-    []      []
-HOMELAB FRAMEWORK CLI - COMMAND NODE
--------------------------------------
-A small friendly robot for rebuilds
+Homelab Framework CLI
+
+Usage:
+  homelab-cli.sh                                   Interactive menu
+  homelab-cli.sh run <playbook> --host <host> [options]
+  homelab-cli.sh hosts                             List inventory hosts
+  homelab-cli.sh playbooks                         List available playbooks
+  homelab-cli.sh bootstrap                         Bootstrap this command node
+  homelab-cli.sh help
+
+Run options:
+  --host, -H <host|group>   Host or group to action (required; use "all" for every host)
+  --check                   Dry run (ansible --check)
+  --extra-vars, -e k=v      Extra Ansible variable (repeatable)
+  --                        Pass remaining arguments straight to ansible-playbook
+
+Example:
+  homelab-cli.sh run bootstrap --host rpi1
 EOF
 }
 
-print_menu() {
-  echo
-  echo "1) Bootstrap this command node"
-  echo "2) Rebuild a remote server node"
-  echo "3) Install a standalone module on a remote node"
-  echo "4) Run Ansible playbook"
-  echo "5) Set environment variable"
-  echo "6) Print current environment"
-  echo "7) Exit"
-  echo
+die() { echo "ERROR: $*" >&2; exit 1; }
+
+require_ansible() {
+  command -v ansible-playbook >/dev/null 2>&1 || die "ansible-playbook not found. Install Ansible first."
+}
+
+list_hosts() {
+  require_ansible
+  ansible all -i "${INVENTORY}" --list-hosts | tail -n +2 | sed 's/^ *//'
+}
+
+list_playbooks() {
+  local f
+  for f in "${PLAYBOOK_DIR}"/*.yml; do
+    [[ -e "${f}" ]] || continue
+    basename "${f}" .yml
+  done
+}
+
+run_playbook() {
+  local playbook="${1:-}" host="" check=0 passthrough=()
+  [[ -n "${playbook}" ]] || die "Playbook name required. See: homelab-cli.sh playbooks"
+  shift
+  playbook="${playbook%.yml}"
+  [[ "${playbook}" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid playbook name: ${playbook}"
+  [[ -f "${PLAYBOOK_DIR}/${playbook}.yml" ]] || die "Unknown playbook '${playbook}'. Available: $(list_playbooks | paste -sd' ' -)"
+
+  local extra=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --host|-H) [[ $# -ge 2 ]] || die "--host requires a value"; host="$2"; shift 2 ;;
+      --check) check=1; shift ;;
+      --extra-vars|-e) [[ $# -ge 2 ]] || die "$1 requires a value"; extra+=("-e" "$2"); shift 2 ;;
+      --) shift; passthrough=("$@"); break ;;
+      *) die "Unknown option: $1" ;;
+    esac
+  done
+
+  [[ -n "${host}" ]] || die "--host is required (use --host all for every host)"
+  require_ansible
+  ansible "${host}" -i "${INVENTORY}" --list-hosts >/dev/null 2>&1 || die "No inventory match for '${host}'. See: homelab-cli.sh hosts"
+
+  local cmd=(ansible-playbook -i "${INVENTORY}" "${PLAYBOOK_DIR}/${playbook}.yml" --limit "${host}")
+  [[ ${check} -eq 1 ]] && cmd+=(--check)
+  [[ ${#EXTRA_VARS[@]} -gt 0 ]] && cmd+=("${EXTRA_VARS[@]}")
+  [[ ${#extra[@]} -gt 0 ]] && cmd+=("${extra[@]}")
+  [[ ${#passthrough[@]} -gt 0 ]] && cmd+=("${passthrough[@]}")
+
+  echo "Running: ${cmd[*]}"
+  "${cmd[@]}"
 }
 
 bootstrap_node() {
-  echo "\n== Bootstrap ${COMMAND_NODE_ROLE} =="
-  echo "Running shared bootstrap on the command node..."
+  echo "Bootstrapping this command node..."
   sudo bash "${ROOT_DIR}/scripts/bootstrap/bootstrap.sh"
 }
 
-node_hostname_to_role() {
-  case "${1}" in
-    rpi3-server) echo "${RPI3_SERVER_ROLE}" ;;
-    rpi2-server) echo "${RPI2_SERVER_ROLE}" ;;
-    rpi1-server) echo "${RPI1_SERVER_ROLE}" ;;
-    rpi0-server) echo "${RPI0_SERVER_ROLE}" ;;
-    tower-server) echo "${TOWER_SERVER_ROLE}" ;;
-    *) echo '' ;;
-  esac
-}
-
-node_role_to_target() {
-  local role="${1}"
-  local hostname assigned_role
-  for hostname in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
-    assigned_role="$(node_hostname_to_role "${hostname}")"
-    if [[ "${assigned_role}" != "${role}" ]]; then
-      continue
+pick() {
+  local prompt="$1"; shift
+  local choice
+  PS3="${prompt} "
+  select choice in "$@"; do
+    if [[ -n "${choice}" ]]; then
+      REPLY_VALUE="${choice}"
+      return 0
     fi
-    case "${hostname}" in
-      rpi3-server) echo "${RPI3_SERVER_IP:-rpi3-server}" ;;
-      rpi2-server) echo "${RPI2_SERVER_IP:-rpi2-server}" ;;
-      rpi1-server) echo "${RPI1_SERVER_IP:-rpi1-server}" ;;
-      rpi0-server) echo "${RPI0_SERVER_IP:-rpi0-server}" ;;
-      tower-server) echo "${TOWER_SERVER_IP:-tower-server}" ;;
-    esac
-    return 0
-  done
-  echo ''
-}
-
-rebuild_node() {
-  echo "\nSelect a remote server to rebuild:"
-  select HOSTNAME in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
-    if [[ -n "${HOSTNAME}" ]]; then
-      ROLE="$(node_hostname_to_role "${HOSTNAME}")"
-      if [[ -z "${ROLE}" ]]; then
-        echo "Unknown hostname selected. Try again."
-        continue
-      fi
-      echo "\nRebuilding host: ${HOSTNAME} (role=${ROLE})"
-      read -p "Dry run only? [y/N]: " dry
-      if [[ "${dry,,}" == "y" ]]; then
-        DRY_RUN=true HOMELAB_ROLE="${ROLE}" bash "${ROOT_DIR}/scripts/rebuild/rebuild-node.sh" --print-role
-      else
-        sudo HOMELAB_ROLE="${ROLE}" bash "${ROOT_DIR}/scripts/rebuild/rebuild-node.sh"
-      fi
-      break
-    else
-      echo "Invalid selection. Try again."
-    fi
+    echo "Invalid selection. Try again."
   done
 }
 
-install_module_on_node() {
-  echo "\nAvailable modules:"
-  mapfile -t MODULES < <(bash "${ROOT_DIR}/scripts/lib/modules.sh" list_modules)
-  if [[ ${#MODULES[@]} -eq 0 ]]; then
-    echo "No modules available."
-    return
-  fi
-
-  select MODULE in "${MODULES[@]}"; do
-    if [[ -n "${MODULE}" ]]; then
-      echo "Selected module: ${MODULE}"
-      break
-    else
-      echo "Invalid selection. Try again."
-    fi
-  done
-
-  echo "\nSelect a target host:"
-  select HOSTNAME in rpi3-server rpi2-server rpi1-server rpi0-server tower-server; do
-    if [[ -n "${HOSTNAME}" ]]; then
-      ROLE="$(node_hostname_to_role "${HOSTNAME}")"
-      if [[ -z "${ROLE}" ]]; then
-        echo "Unknown hostname selected. Try again."
-        continue
-      fi
-      TARGET="$(node_role_to_target "${ROLE}")"
-      if [[ -z "${TARGET}" ]]; then
-        echo "No target address available for ${HOSTNAME}."
-        return
-      fi
-      echo "\nInstalling ${MODULE} on ${HOSTNAME} (${TARGET})..."
-      if [[ "${TARGET}" =~ ^(localhost|127\.0\.0\.1)$ ]]; then
-        sudo bash "${ROOT_DIR}/scripts/lib/modules.sh" run install "${MODULE}"
-      else
-        ssh "${TARGET}" "cd '${ROOT_DIR}' && sudo bash scripts/lib/modules.sh run install '${MODULE}'"
-      fi
-      break
-    else
-      echo "Invalid selection. Try again."
-    fi
-  done
+menu_run_playbook() {
+  local hosts playbooks
+  mapfile -t playbooks < <(list_playbooks)
+  mapfile -t hosts < <(list_hosts)
+  [[ ${#playbooks[@]} -gt 0 ]] || { echo "No playbooks found."; return; }
+  hosts=(all "${hosts[@]}")
+  pick "Playbook:" "${playbooks[@]}"; local playbook="${REPLY_VALUE}"
+  pick "Host:" "${hosts[@]}"; local host="${REPLY_VALUE}"
+  local check=()
+  read -r -p "Dry run (--check)? [y/N]: " dry
+  [[ "${dry,,}" == "y" ]] && check=(--check)
+  run_playbook "${playbook}" --host "${host}" "${check[@]}"
 }
 
-run_ansible_playbook() {
-  echo "\nAvailable playbooks:"
-  select playbook in bootstrap desktop infrastructure; do
-    if [[ -n "${playbook}" ]]; then
-      echo "\nRunning ansible-playbook for ${playbook}..."
-      ansible-playbook -i "${ROOT_DIR}/ansible/inventories/lab/hosts.yml" "${ROOT_DIR}/ansible/playbooks/${playbook}.yml" "${EXTRA_VARS[@]}"
-      break
-    else
-      echo "Invalid selection. Try again."
-    fi
-  done
+menu_install_module() {
+  local modules hosts
+  mapfile -t modules < <(bash "${ROOT_DIR}/scripts/lib/modules.sh" list_modules)
+  [[ ${#modules[@]} -gt 0 ]] || { echo "No modules available."; return; }
+  mapfile -t hosts < <(list_hosts)
+  pick "Module:" "${modules[@]}"; local module="${REPLY_VALUE}"
+  pick "Host:" "${hosts[@]}"; local host="${REPLY_VALUE}"
+  local target
+  target="$(ansible-inventory -i "${INVENTORY}" --host "${host}" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("ansible_host",""))' 2>/dev/null || true)"
+  target="${target:-${host}}"
+  echo "Installing ${module} on ${host} (${target})..."
+  ssh "${target}" "cd '${ROOT_DIR}' && sudo bash scripts/lib/modules.sh run install '${module}'"
 }
 
 set_env_variable() {
-  read -p "Enter variable name: " key
-  read -p "Enter value: " value
-  if [[ -z "${key}" ]]; then
-    echo "Variable name cannot be empty."
-    return
-  fi
-  if ! save_env_var "${ROOT_DIR}/.env" "${key}" "${value}"; then
-    echo "Failed to save variable to ${ROOT_DIR}/.env."
-    return
-  fi
+  read -r -p "Enter variable name: " key
+  read -r -p "Enter value: " value
+  [[ -n "${key}" ]] || { echo "Variable name cannot be empty."; return; }
+  save_env_var "${ROOT_DIR}/.env" "${key}" "${value}" || { echo "Failed to save variable."; return; }
   export "${key}=${value}"
   EXTRA_VARS+=("-e" "${key}=${value}")
-  echo "Saved ${key}=${value} to ${ROOT_DIR}/.env and added to the current session."
+  echo "Saved ${key} to ${ROOT_DIR}/.env and added to this session."
 }
 
 print_current_env() {
-  echo "\nCurrent environment variables (from .env and defaults):"
-  echo "NETWORK_GATEWAY=${NETWORK_GATEWAY}"
-  echo "NETWORK_NAMESERVER=${NETWORK_NAMESERVER}"
-  echo "NETWORK_PREFIX_LENGTH=${NETWORK_PREFIX_LENGTH}"
-  echo "NETWORK_PROBE_IP=${NETWORK_PROBE_IP}"
-  echo "RPI3_SERVER_IP=${RPI3_SERVER_IP}"
-  echo "RPI3_SERVER_MAC=${RPI3_SERVER_MAC}"
-  echo "RPI2_SERVER_IP=${RPI2_SERVER_IP}"
-  echo "RPI2_SERVER_MAC=${RPI2_SERVER_MAC}"
-  echo "RPI1_SERVER_IP=${RPI1_SERVER_IP}"
-  echo "RPI1_SERVER_MAC=${RPI1_SERVER_MAC}"
-  echo "RPI0_SERVER_IP=${RPI0_SERVER_IP}"
-  echo "RPI0_SERVER_MAC=${RPI0_SERVER_MAC}"
+  echo "NETWORK_GATEWAY=${NETWORK_GATEWAY:-}"
+  echo "NETWORK_NAMESERVER=${NETWORK_NAMESERVER:-}"
+  echo "NETWORK_PREFIX_LENGTH=${NETWORK_PREFIX_LENGTH:-}"
+  echo "NETWORK_PROBE_IP=${NETWORK_PROBE_IP:-}"
 }
 
-main() {
-  print_header
+menu() {
   while true; do
-    print_menu
-    read -p "Enter choice: " choice
+    cat <<'EOF'
+
+HOMELAB FRAMEWORK CLI
+1) Run Ansible playbook on a host
+2) Install a module on a host
+3) Bootstrap this command node
+4) List hosts
+5) Set environment variable
+6) Print current environment
+7) Exit
+EOF
+    read -r -p "Enter choice: " choice
     case "${choice}" in
-      1) bootstrap_node ;; 
-      2) rebuild_node ;; 
-      3) install_module_on_node ;; 
-      4) run_ansible_playbook ;; 
-      5) set_env_variable ;; 
-      6) print_current_env ;; 
-      7) echo "Goodbye."; exit 0 ;; 
-      *) echo "Invalid choice. Enter 1-7." ;; 
+      1) menu_run_playbook ;;
+      2) menu_install_module ;;
+      3) bootstrap_node ;;
+      4) list_hosts ;;
+      5) set_env_variable ;;
+      6) print_current_env ;;
+      7) echo "Goodbye."; exit 0 ;;
+      *) echo "Invalid choice. Enter 1-7." ;;
     esac
   done
 }
 
-main "$@"
+main() {
+  case "${1:-menu}" in
+    menu) menu ;;
+    run) shift; run_playbook "$@" ;;
+    hosts) list_hosts ;;
+    playbooks) list_playbooks ;;
+    bootstrap) bootstrap_node ;;
+    help|-h|--help) usage ;;
+    *) usage; exit 1 ;;
+  esac
+}
 
+main "$@"

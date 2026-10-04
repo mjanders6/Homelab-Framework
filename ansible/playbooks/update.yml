@@ -1,0 +1,10 @@
+---
+# Upgrade all packages. Target with --limit <host>.
+- name: Update hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Upgrade packages
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true

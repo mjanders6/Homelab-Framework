@@ -1,68 +1,14 @@
-## Plan: Replace network boot with image-based rebuilds
-
-The current framework previously included a hybrid PXE/cloud-init bootserver flow. That legacy path has been retired; the migration shifted to a local-image and post-install automation model to keep fast rebuilds while removing the bootserver dependency.
-
-### Status snapshot
-
-- Sprint 0 — Completed: established the rebuild-first target architecture and documented the migration away from the bootserver-centric path.
-- Sprint 1 — Completed: implemented the image-based foundation for role-specific rebuilds, including role mapping, artifact packaging, validation checks, and CI coverage.
-- Sprint 2 — Completed: replaced first-boot bootserver automation with a local image + post-install bootstrap flow, added the command-node CLI, and retired legacy bootserver/K3s references.
-- Sprint 3 — Implementation mostly complete: core service paths were moved onto the image-plus-bootstrap workflow, but full install/configure/verify/remove coverage for every service module is still outstanding.
-- Sprint 4 — Workflow and documentation complete: the legacy bootserver/PXE path is retired from the supported workflow, recovery guidance is documented, and the flexible role-assignment workflow is implemented. A real end-to-end reinstall-to-service recovery run is still outstanding.
-
-### Recommended sprint structure
-
-1. Sprint 0 — Baseline and target architecture
-   - Audit the current bootserver workflow, dependencies, and assumptions.
-   - Define the target architecture: boot from local media or a prebuilt image, then run automation over the network.
-   - Decide which node roles will use which images and what bootstrap data each one needs.
-   - Deliverables: architecture decision record, updated repo roadmap, explicit scope for removing PXE/TFTP from the supported path.
-
-2. Sprint 1 — Completed: Build a golden-image workflow
-   - Create a repeatable image-build path for each node type using Ubuntu Server as the base.
-   - Bake in basic identity, SSH access, hostname defaults, and required packages into the image.
-   - Store images in a controlled location and version them with the repo or a release artifact store.
-   - Deliverables: image build scripts, documented image naming/versioning, one tested image per primary node type.
-
-3. Sprint 2 — Completed: Replace first-boot automation with a local bootstrap flow
-   - Introduced a bootstrap workflow that runs after the node is installed from the image.
-   - Reused existing Ansible playbooks and module lifecycle logic, removing hard dependence on the bootserver module.
-   - Made the flow idempotent so reinstalling a node produces the same final state.
-   - Added a command-node CLI for bootstrap, rebuild, playbook, and environment workflows.
-   - Deliverables: one-button bootstrap command, inventory updates, validation steps for a fresh install, and CLI-based command-node orchestration.
-
-4. Sprint 3 — Migrate infrastructure services to the new path
-   - Move core services such as Docker, K3s, networking, logging, NFS, and monitoring onto the new image-plus-bootstrap workflow.
-   - Ensure each module can install/configure/verify/remove without PXE support.
-   - Keep module boundaries intact so the framework stays modular.
-   - Deliverables: updated module scripts, verification coverage, and documented install order.
-   - Status: implementation mostly complete; module lifecycle verification remains.
-
-5. Sprint 4 — Remove the old bootserver path and harden recovery
-   - Retire or deprecate the bootserver module from the default workflow and documentation.
-   - Update [README.md](README.md), [ARCHITECTURE.md](ARCHITECTURE.md), and the module docs to reflect the new rebuild model.
-   - Add recovery steps for reinstalling a node from image and re-running bootstrap.
-   - Deliverables: fully documented rebuild path, deprecation notice for PXE/TFTP support, and a tested end-to-end recovery run.
-   - Status: workflow and documentation complete; physical recovery validation remains.
-
-6. Sprint 5 — Validate recovery and module lifecycle coverage
-   - Reinstall one representative node from a local image or virtual-machine image.
-   - Configure `.env` and run `sudo make install ROLE=<role>` from a fresh checkout.
-   - Verify the role-specific services and rerun the install command to confirm idempotency.
-   - Exercise install, configure, verify, and remove for each supported core module.
-   - Record the recovery run, timing, service checks, and any manual steps in the sprint notes.
-
-### Scope boundaries
-- Keep the goal focused on fast, reproducible rebuilds after OS reinstall.
-- Do not expand into a full Kubernetes platform migration in the first pass; the first version should cover the core bootstrap experience.
-- Preserve the existing modular structure rather than replacing it with one monolithic script.
-
-### Success criteria
-- A node can be reinstalled from a local image without relying on PXE.
-- The same automation can complete the post-install configuration in a repeatable way.
-- A full rebuild can be executed from a documented sequence in under a reasonable time window.
-
-### Remaining validation work
-
-The current smoke tests validate role detection, role-image mapping, and image artifact packaging. They do not replace a real host recovery run. Sprint 5 is complete when at least one representative node has been reinstalled and returned to service using the documented workflow, and core module lifecycle checks have been recorded.
 # Roadmap
+
+Version 3.0.0 resets the framework to a simple, role-free core. Every host in the
+inventory is treated the same; behavior is selected by the playbook you run, not by a
+host role.
+
+## 3.0.0
+- Single `lab` inventory group; no per-host roles.
+- Generic playbooks: `ping`, `bootstrap`, `update`.
+- CLI runs any playbook against any host: `homelab-cli.sh run <playbook> --host <host>`.
+
+## Next
+- Add more generic playbooks (docker, nfs, logging) driven by variables.
+- Retire the legacy role-based rebuild scripts and role images.
