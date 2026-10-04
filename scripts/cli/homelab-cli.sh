@@ -10,6 +10,8 @@ load_dotenv "${ROOT_DIR}/.env"
 apply_network_defaults
 
 INVENTORY="${ROOT_DIR}/ansible/inventories/lab/hosts.yml"
+# Always use the repo config; Ansible ignores ansible.cfg found in world-writable dirs (e.g. WSL /mnt/c).
+export ANSIBLE_CONFIG="${ROOT_DIR}/ansible.cfg"
 PLAYBOOK_DIR="${ROOT_DIR}/ansible/playbooks"
 EXTRA_VARS=()
 
@@ -22,12 +24,14 @@ Usage:
   homelab-cli.sh run <playbook> --host <host> [options]
   homelab-cli.sh hosts                             List inventory hosts
   homelab-cli.sh playbooks                         List available playbooks
+  homelab-cli.sh setup                             Install/verify Ansible on this command node
   homelab-cli.sh bootstrap                         Bootstrap this command node
   homelab-cli.sh help
 
 Run options:
   --host, -H <host|group>   Host or group to action (required; use "all" for every host)
   --check                   Dry run (ansible --check)
+  --ask-become-pass, -K     Prompt for the sudo password on the target
   --extra-vars, -e k=v      Extra Ansible variable (repeatable)
   --                        Pass remaining arguments straight to ansible-playbook
 
@@ -39,7 +43,18 @@ EOF
 die() { echo "ERROR: $*" >&2; exit 1; }
 
 require_ansible() {
-  command -v ansible-playbook >/dev/null 2>&1 || die "ansible-playbook not found. Install Ansible first."
+  command -v ansible-playbook >/dev/null 2>&1 || die "ansible-playbook not found. Run: homelab-cli.sh setup (Linux/WSL required; Ansible does not run on native Windows)."
+}
+
+setup_ansible() {
+  case "$(uname -s)" in Linux) ;; *) die "Ansible needs a Linux control node (use Ubuntu, a Pi, or WSL)." ;; esac
+  if ! command -v ansible-playbook >/dev/null 2>&1; then
+    echo "Installing Ansible..."
+    sudo apt-get update -y && sudo apt-get install -y ansible sshpass openssh-client
+  fi
+  ansible --version | head -n 1
+  [[ -f "${HOME}/.ssh/id_ed25519" || -f "${HOME}/.ssh/id_rsa" ]] || echo "No SSH key found. Create one: ssh-keygen -t ed25519"
+  echo "Next: ssh-copy-id <user>@<host> for each host, then: homelab-cli.sh run ping --host all"
 }
 
 list_hosts() {
@@ -56,7 +71,7 @@ list_playbooks() {
 }
 
 run_playbook() {
-  local playbook="${1:-}" host="" check=0 passthrough=()
+  local playbook="${1:-}" host="" check=0 become=0 passthrough=()
   [[ -n "${playbook}" ]] || die "Playbook name required. See: homelab-cli.sh playbooks"
   shift
   playbook="${playbook%.yml}"
@@ -68,6 +83,7 @@ run_playbook() {
     case "$1" in
       --host|-H) [[ $# -ge 2 ]] || die "--host requires a value"; host="$2"; shift 2 ;;
       --check) check=1; shift ;;
+      --ask-become-pass|-K) become=1; shift ;;
       --extra-vars|-e) [[ $# -ge 2 ]] || die "$1 requires a value"; extra+=("-e" "$2"); shift 2 ;;
       --) shift; passthrough=("$@"); break ;;
       *) die "Unknown option: $1" ;;
@@ -80,6 +96,7 @@ run_playbook() {
 
   local cmd=(ansible-playbook -i "${INVENTORY}" "${PLAYBOOK_DIR}/${playbook}.yml" --limit "${host}")
   [[ ${check} -eq 1 ]] && cmd+=(--check)
+  [[ ${become} -eq 1 ]] && cmd+=(--ask-become-pass)
   [[ ${#EXTRA_VARS[@]} -gt 0 ]] && cmd+=("${EXTRA_VARS[@]}")
   [[ ${#extra[@]} -gt 0 ]] && cmd+=("${extra[@]}")
   [[ ${#passthrough[@]} -gt 0 ]] && cmd+=("${passthrough[@]}")
@@ -184,6 +201,7 @@ main() {
     run) shift; run_playbook "$@" ;;
     hosts) list_hosts ;;
     playbooks) list_playbooks ;;
+    setup) setup_ansible ;;
     bootstrap) bootstrap_node ;;
     help|-h|--help) usage ;;
     *) usage; exit 1 ;;

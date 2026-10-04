@@ -69,6 +69,9 @@ run: ## Run an Ansible playbook on a host (make run PLAYBOOK=bootstrap HOST=rpi1
 	@test -n "$(PLAYBOOK)" -a -n "$(HOST)" || { echo "Usage: make run PLAYBOOK=<playbook> HOST=<host|group|all> [CHECK=1]"; exit 1; }
 	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh run "$(PLAYBOOK)" --host "$(HOST)" $(if $(CHECK),--check)
 
+setup: ## Install/verify Ansible on this command node
+	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh setup
+
 hosts: ## List inventory hosts
 	@bash $(SCRIPT_DIR)/cli/homelab-cli.sh hosts
 
@@ -159,6 +162,7 @@ clean: ## Remove temporary files
 	help \
 	base \
 	run \
+	setup \
 	hosts \
 	playbooks \
 	docker \
